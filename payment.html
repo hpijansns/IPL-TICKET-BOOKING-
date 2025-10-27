@@ -46,7 +46,7 @@ button#payWithUTR:hover{background:linear-gradient(90deg,#43a047,#388e3c);}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-// Firebase config
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -59,11 +59,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Load selected ticket from localStorage
+// Load Ticket Data
 const ticketData = JSON.parse(localStorage.getItem('paymentInfo'));
 if(!ticketData){ 
   alert("❌ कोई डेटा नहीं मिला, कृपया फिर से मैच बुक करें।");
-  window.location.href="match-details.html";
+  window.location.href = "match-details.html";
 }
 
 const DEFAULT_LOGO = "https://iili.io/K8L5Ots.jpg";
@@ -77,33 +77,34 @@ document.getElementById('matchInfo').innerHTML = `
   <strong>Seat Type:</strong> ${ticketData.seatType} <br>
   <strong>Quantity:</strong> ${ticketData.qty}
 `;
+
 document.getElementById('totalAmount').textContent = `Total Amount: ₹${ticketData.total}`;
 
-// Confirm Payment
+// Confirm Payment Button
 document.getElementById('payWithUTR').addEventListener('click', ()=>{
   const utr = document.getElementById('utrInput').value.trim();
   const utrRegex = /^\d{12}$/;
-  
+
   if(!utrRegex.test(utr)){
-      alert("❌ कृपया मान्य 12 अंकों का UTR दर्ज करें।");
-      return;
+    alert("❌ कृपया मान्य 12 अंकों का UTR दर्ज करें।");
+    return;
   }
 
-  // Save booking
+  // Save Booking Data
   ticketData.utr = utr;
-  ticketData.bookingId = 'IPL' + Date.now().toString().slice(-6); 
+  ticketData.bookingId = 'IPL' + Date.now().toString().slice(-6);
 
   db.ref('bookings/' + ticketData.bookingId).set(ticketData)
     .then(()=>{
-        // ✅ Fix added here — save to localStorage for ticket page
-        localStorage.setItem('currentBookingData', JSON.stringify(ticketData));
-        
-        alert(`✅ Payment Successful! Booking ID: ${ticketData.bookingId}`);
-        window.location.href = `ticket.html?bookingId=${ticketData.bookingId}`;
+      // ✅ Save data for ticket.html
+      localStorage.setItem('currentBookingData', JSON.stringify(ticketData));
+
+      // ✅ Direct redirect
+      window.location.href = "ticket.html";
     })
     .catch((err)=>{
-        console.error(err);
-        alert("❌ Payment save failed, try again.");
+      console.error(err);
+      alert("❌ Payment save failed, try again.");
     });
 });
 </script>
