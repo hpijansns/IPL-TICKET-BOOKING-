@@ -60,24 +60,25 @@ html,body{background:#f0f2f5;width:100%;}
 }
 
 /* ------------------------------------- */
-/* --- HEADER AND BANNER STYLES (WITH STICKY & SHADOW) --- */
+/* --- HEADER STYLES (FIXED POSITION) --- */
 /* ------------------------------------- */
-header{
+#main-header{
     width:100%;
-    position:sticky; 
+    /* हेडर को स्थिर (FIXED) रखा गया है */
+    position: fixed; 
     top:0;
+    left: 0;
     z-index:1000;
     background:#fff; 
     border-bottom:6px solid #f84464; 
     transition: box-shadow 0.3s ease-in-out; 
     overflow: hidden; 
     height: auto;
-}
-header.scrolled {
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    position: relative; /* relative for inner absolute items */
 }
 
-header img.banner-img{ 
+/* Banner Image */
+#main-header img.banner-img{ 
     width:100%;
     height:auto;
     aspect-ratio:5.72/1;
@@ -85,13 +86,76 @@ header img.banner-img{
     display:block;
     border-radius:0;
     transform: translateZ(0);
-    transition: transform 0.1s ease-out; 
+}
+
+/* Logo position on banner (fixed with header) */
+.header-logo {
+    position: absolute;
+    top: 15px; 
+    left: 20px; 
+    height: 40px; 
+    object-fit: contain;
+    z-index: 1001; 
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); 
+}
+
+/* Hamburger button position on banner (fixed with header) */
+.hamburger {
+    background: none;
+    border: none;
+    color: #fff; 
+    font-size: 30px;
+    cursor: pointer;
+    z-index: 1010;
+    display: block; 
+    position: absolute;
+    top: 15px; 
+    right: 20px; 
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); 
+}
+
+/* Sidebar Menu */
+.sidebar-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 250px;
+    background: #222;
+    z-index: 1005;
+    transform: translateX(100%); 
+    transition: transform 0.3s ease-in-out;
+    padding-top: 60px;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+}
+.sidebar-menu.open {
+    transform: translateX(0); 
+}
+.sidebar-menu a {
+    display: block;
+    padding: 15px 20px;
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid #444;
+    transition: background 0.2s;
+    font-weight: 500;
+}
+.sidebar-menu a:hover {
+    background: #f84464;
+}
+.sidebar-menu hr {
+    border-color: #555;
+    margin: 10px 0;
 }
 
 /* ------------------------------------- */
-/* --- MATCHES SECTION STYLES --- */
+/* --- MATCHES SECTION STYLES (Margin for Fixed Header) --- */
 /* ------------------------------------- */
-.matches-section{padding:40px 20px;} 
+.matches-section{
+    /* हेडर के नीचे कंटेंट को धकेलने के लिए मार्जिन */
+    padding:40px 20px;
+    margin-top: 160px; 
+} 
 .matches-section h2{
     color:#222;
     font-size:32px;
@@ -141,7 +205,7 @@ header img.banner-img{
 .card-body p{font-size:15px;color:#777;margin-bottom:8px;}
 .card-body .local-time {
     font-weight: 700;
-    color: #000; /* Highlight local time */
+    color: #000; 
 }
 
 /* Button with gradient look */
@@ -174,12 +238,18 @@ footer a{color:#ccc;text-decoration:none;margin:0 15px;font-size:13px;transition
 footer a:hover{color:#f84464;text-decoration:none;}
 
 @media(max-width:768px){
-    .matches-section{padding:20px;}
+    .matches-section{
+        padding:20px;
+        margin-top: 100px; 
+    }
     .matches-section h2{font-size:26px;}
     .cards-container{grid-template-columns:1fr; gap: 20px;}
     .card .team-vs img{width:80px;height:80px;}
     .card .team-vs .vs{font-size:30px;}
     .banner-img{aspect-ratio:4/1;}
+    /* Adjust logo/hamburger position for smaller screens */
+    .header-logo { top: 10px; left: 10px; height: 35px; }
+    .hamburger { top: 10px; right: 10px; font-size: 26px;}
 }
 </style>
 </head>
@@ -191,6 +261,18 @@ footer a:hover{color:#f84464;text-decoration:none;}
 
 <header id="main-header">
     <img id="banner-img" src="" alt="IPL Banner" class="banner-img">
+    <img id="header-logo" src="https://iili.io/K8L5Ots.jpg" alt="IPL Logo" class="header-logo">
+    <button class="hamburger" id="menu-toggle" aria-label="Toggle Menu">
+        &#9776; 
+    </button>
+    <nav class="sidebar-menu" id="sidebar-menu">
+        <a href="#">Home</a>
+        <a href="#matches-container">Upcoming Matches</a>
+        <a href="my-bookings.html">My Bookings</a>
+        <a href="user-login.html">User Login/Sign Up</a> 
+        <hr>
+        <a href="#">Support & Help</a>
+    </nav>
 </header>
 
 <div class="matches-section">
@@ -221,13 +303,16 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const defaultImg = "https://iili.io/K8L5Ots.jpg";
+const defaultLogo = "https://iili.io/K8L5Ots.jpg"; 
 const bannerImg = document.getElementById("banner-img");
+const headerLogo = document.getElementById("header-logo"); 
 const splashScreen = document.getElementById("splash-screen"); 
 const mainHeader = document.getElementById("main-header");
 const container = document.getElementById("matches-container");
 const noMatches = document.getElementById("no-matches");
+const menuToggle = document.getElementById("menu-toggle");
+const sidebarMenu = document.getElementById("sidebar-menu");
 
-// **OPTIMIZATION:** Store sorted matches globally once they are fetched
 let sortedMatchesArray = []; 
 
 
@@ -235,14 +320,24 @@ let sortedMatchesArray = [];
 // --- CORE LOGIC & ANIMATIONS ---
 // -------------------------------------
 
-// Header Scroll Shadow 
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-        mainHeader.classList.add('scrolled');
-    } else {
-        mainHeader.classList.remove('scrolled');
-    }
+// Hamburger Menu Toggle
+menuToggle.addEventListener('click', () => {
+    sidebarMenu.classList.toggle('open');
 });
+// Close menu when a link is clicked
+sidebarMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+        // Only close if it's a hash link (for smooth scrolling)
+        if (link.getAttribute('href').startsWith('#')) {
+            setTimeout(() => {
+                sidebarMenu.classList.remove('open');
+            }, 300);
+        } else {
+            sidebarMenu.classList.remove('open');
+        }
+    });
+});
+
 
 // Splash Screen Logic
 window.onload = function() {
@@ -255,31 +350,24 @@ window.onload = function() {
 function convertTimeToLocal(dateStr, timeStr) {
     if (!dateStr || !timeStr) return '—';
     
-    // Combine Date and Time. Assuming Firebase stores Date in YYYY-MM-DD
-    // and Time in HH:MM (e.g., '19:30').
     const dateTimeStr = `${dateStr} ${timeStr}:00`; 
     
-    // Create Date object assuming it's IST (UTC+5:30)
-    // NOTE: This relies on modern browser Date parsing capabilities to correctly interpret the timezone.
     const dateIST = new Date(dateTimeStr + ' UTC+0530'); 
     
-    // Check if dateIST is valid
-    if (isNaN(dateIST)) return timeStr + ' IST'; // Fallback if parsing fails
+    if (isNaN(dateIST)) return timeStr + ' IST'; 
 
-    // Format the time for the user's local timezone
     const localTime = dateIST.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
-        timeZoneName: 'short' // Shows the local timezone abbreviation
+        timeZoneName: 'short' 
     });
     
     return localTime;
 }
 
 
-// 3D Tilt Effect on Cards (Advanced!)
+// 3D Tilt Effect on Cards 
 function initTiltEffect() {
-    // Remove previous listeners to avoid duplicates on re-render
     const cards = document.querySelectorAll('.card');
     cards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
@@ -287,7 +375,6 @@ function initTiltEffect() {
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             
-            // Calculate rotation amount
             const rotY = (x - rect.width / 2) / 20; 
             const rotX = (rect.height / 2 - y) / 20;
             
@@ -317,11 +404,17 @@ function sortMatches(matches) {
     });
 }
 
-// Load Banner
+// Load Logo and Banner
 db.ref("settings/banner").once("value").then(snap=>{
   const url = snap.val() || defaultImg;
   bannerImg.src = url;
 });
+
+db.ref("settings/logo").once("value").then(snap=>{
+    const url = snap.val() || defaultLogo;
+    headerLogo.src = url;
+});
+
 
 // Load Matches - Sorted Logic
 db.ref("matches").on("value", snap=>{
@@ -329,24 +422,21 @@ db.ref("matches").on("value", snap=>{
   const data = snap.val();
   if(!data){ 
     noMatches.style.display="block"; 
-    sortedMatchesArray = []; // Clear stored array
+    sortedMatchesArray = []; 
     return; 
   }
   
   let matchesArray = Object.values(data);
-  // Store the sorted array globally
   sortedMatchesArray = sortMatches(matchesArray); 
   
   noMatches.style.display="none";
   
   sortedMatchesArray.forEach((m,index)=>{
-    // Convert time for display
     const localTime = convertTimeToLocal(m.date, m.time);
     
     const card = document.createElement("div");
     card.className = "card card-animation"; 
     
-    // Staggered animation delay
     card.style.animationDelay = `${index * 0.1}s`; 
     
     card.innerHTML = `
@@ -366,20 +456,15 @@ db.ref("matches").on("value", snap=>{
     container.appendChild(card);
   });
   
-  // Initialize the tilt effect after cards are loaded
   initTiltEffect();
 });
 
-// **OPTIMIZED bookMatch function**
-// Uses the globally stored and sorted 'sortedMatchesArray'
 function bookMatch(index){
-  // Check if data is available
   if (sortedMatchesArray.length === 0) {
       alert("Match data not loaded yet. Please wait.");
       return;
   }
   
-  // Get the correct match directly from the pre-sorted array
   const selectedMatch = sortedMatchesArray[index];
   
   localStorage.setItem("selectedMatch", JSON.stringify(selectedMatch));
