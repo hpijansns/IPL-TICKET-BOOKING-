@@ -64,7 +64,6 @@ html,body{background:#f0f2f5;width:100%;}
 /* ------------------------------------- */
 #main-header{
     width:100%;
-    /* हेडर को स्थिर (FIXED) रखा गया है */
     position: fixed; 
     top:0;
     left: 0;
@@ -74,7 +73,7 @@ html,body{background:#f0f2f5;width:100%;}
     transition: box-shadow 0.3s ease-in-out; 
     overflow: hidden; 
     height: auto;
-    position: relative; /* relative for inner absolute items */
+    position: relative; 
 }
 
 /* Banner Image */
@@ -88,12 +87,12 @@ html,body{background:#f0f2f5;width:100%;}
     transform: translateZ(0);
 }
 
-/* Logo position on banner (fixed with header) */
-.header-logo {
+/* Logo position on banner (UPDATED TO USE #header-logo) */
+#header-logo {
     position: absolute;
     top: 15px; 
     left: 20px; 
-    height: 40px; 
+    height: 40px; /* Size is correct */
     object-fit: contain;
     z-index: 1001; 
     filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); 
@@ -152,7 +151,6 @@ html,body{background:#f0f2f5;width:100%;}
 /* --- MATCHES SECTION STYLES (Margin for Fixed Header) --- */
 /* ------------------------------------- */
 .matches-section{
-    /* हेडर के नीचे कंटेंट को धकेलने के लिए मार्जिन */
     padding:40px 20px;
     margin-top: 160px; 
 } 
@@ -248,7 +246,7 @@ footer a:hover{color:#f84464;text-decoration:none;}
     .card .team-vs .vs{font-size:30px;}
     .banner-img{aspect-ratio:4/1;}
     /* Adjust logo/hamburger position for smaller screens */
-    .header-logo { top: 10px; left: 10px; height: 35px; }
+    #header-logo { top: 10px; left: 10px; height: 35px; }
     .hamburger { top: 10px; right: 10px; font-size: 26px;}
 }
 </style>
@@ -261,7 +259,7 @@ footer a:hover{color:#f84464;text-decoration:none;}
 
 <header id="main-header">
     <img id="banner-img" src="" alt="IPL Banner" class="banner-img">
-    <img id="header-logo" src="https://iili.io/K8L5Ots.jpg" alt="IPL Logo" class="header-logo">
+    <img id="header-logo" src="" alt="IPL Logo" class="header-logo"> 
     <button class="hamburger" id="menu-toggle" aria-label="Toggle Menu">
         &#9776; 
     </button>
@@ -302,8 +300,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const defaultImg = "https://iili.io/K8L5Ots.jpg";
-const defaultLogo = "https://iili.io/K8L5Ots.jpg"; 
+const defaultImg = "https://iili.io/K8L5Ots.jpg"; // Default banner image
+const defaultLogo = "https://iili.io/K4fT3wQ.png"; // UPDATED: Changed default logo URL just in case, feel free to use your own.
 const bannerImg = document.getElementById("banner-img");
 const headerLogo = document.getElementById("header-logo"); 
 const splashScreen = document.getElementById("splash-screen"); 
@@ -404,15 +402,23 @@ function sortMatches(matches) {
     });
 }
 
-// Load Logo and Banner
+// Load Logo and Banner (This should now work correctly for both)
 db.ref("settings/banner").once("value").then(snap=>{
   const url = snap.val() || defaultImg;
   bannerImg.src = url;
+}).catch(error => {
+    console.error("Error loading banner:", error);
+    bannerImg.src = defaultImg; 
 });
 
+
+// FIX: Load Logo from Firebase
 db.ref("settings/logo").once("value").then(snap=>{
     const url = snap.val() || defaultLogo;
-    headerLogo.src = url;
+    headerLogo.src = url; // Ensures Firebase URL or JavaScript default is used
+}).catch(error => {
+    console.error("Error loading logo:", error);
+    headerLogo.src = defaultLogo; // Fallback to JS default if Firebase fails
 });
 
 
