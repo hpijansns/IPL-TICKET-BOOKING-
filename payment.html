@@ -95,8 +95,10 @@ document.getElementById('payWithUTR').addEventListener('click', ()=>{
 
   db.ref('bookings/' + ticketData.bookingId).set(ticketData)
     .then(()=>{
+        // ✅ Fix added here — save to localStorage for ticket page
+        localStorage.setItem('currentBookingData', JSON.stringify(ticketData));
+        
         alert(`✅ Payment Successful! Booking ID: ${ticketData.bookingId}`);
-        // Redirect with bookingId
         window.location.href = `ticket.html?bookingId=${ticketData.bookingId}`;
     })
     .catch((err)=>{
