@@ -1,3 +1,4 @@
+<!-- Part 1/2 -->
 <!doctype html>
 <html lang="hi">
 <head>
@@ -166,167 +167,79 @@
     </div>
 </div>
 <button id="downloadbtn">DOWNLOAD OFFICIAL E-TICKET</button>
-<script>
-    // --- Ticket Data Initialization ---
-    const DEFAULT_IPL_LOGO = "https://upload.wikimedia.org/wikipedia/commons/3/3a/Indian_Premier_League_logo.svg";
-    // अगर डेटा में लोगो नहीं हैं तो फॉलबैक URL
-    const FALLBACK_LOGO_1 = "https://via.placeholder.com/150x150/0b81d1/ffffff?text=Team+A+Logo"; 
-    const FALLBACK_LOGO_2 = "https://via.placeholder.com/150x150/f84464/ffffff?text=Team+B+Logo"; 
 
-    // **LOCAL STORAGE KEY**
-    const DATA_KEY = 'currentBookingData'; 
+<!-- Part 1/2 ends here. JavaScript (data fetch + render + download) continues in Part 2/2 --></div>
+            </div>
+          </div>
+        </section>
 
-    // Fallback/Default Data (डेटा न मिलने पर इसका उपयोग किया जाता है)
-    const defaultTicketData = {
-        matchDetails: { 
-            teams: "Chennai Super Kings vs Mumbai Indians", 
-            stadium: "M. A. Chidambaram Stadium, Chennai", 
-            date: "2025-04-10", 
-            time: "20:00", 
-            img1: FALLBACK_LOGO_1, 
-            img2: FALLBACK_LOGO_2 
-        },
-        price: 1500,
-        qty: 1,
-        total: 1900,
-        seatType: "General Stand",
-        bookingId: "DUMMY123",
-        utr: "000000000000",
-        seatDetails: { 
-            GATE: "05", 
-            ZONE: "NORTH", 
-            TIER_BLOCK: "L1", 
-            ROW: "D", 
-            SEAT_NO: "025", 
-            matchNo: "15" 
-        }
-    };
+        <section class="qr-section">
+          <div class="container">
+            <div class="qr-box">
+              <h3>Scan to Verify Ticket</h3>
+              <div id="qrCode"></div>
+              <p id="utrDisplay"></p>
+            </div>
+          </div>
+        </section>
 
-    // **LOCAL STORAGE से डेटा लोड करें**
-    let ticketData = JSON.parse(localStorage.getItem(DATA_KEY));
-    if (!ticketData || !ticketData.seatDetails) {
-        console.warn("Could not find ticket data in localStorage, loading default data.");
-        ticketData = defaultTicketData;
-    }
+        <footer>
+          <p>© 2025 IPL Official Ticketing System | Powered by PL Project</p>
+        </footer>
+      </div>
 
-    // Destructure required data
-    const match = ticketData.matchDetails;
-    const seats = ticketData.seatDetails;
-    const teamsArray = match.teams.split(" vs ");
-    const team1Name = teamsArray[0] || "Team 1";
-    const team2Name = teamsArray[1] || "Team 2";
+      <script>
+        // Load data from Firebase/localStorage
+        document.addEventListener("DOMContentLoaded", async () => {
+          const params = new URLSearchParams(window.location.search);
+          const ticketId = params.get("id") || localStorage.getItem("ticketId");
 
-    // खाली URL के लिए फॉलबैक सेट करना सुनिश्चित करें
-    match.img1 = match.img1 || FALLBACK_LOGO_1;
-    match.img2 = match.img2 || FALLBACK_LOGO_2;
+          if (!ticketId) {
+            alert("Ticket data missing! Redirecting to payment page...");
+            window.location.href = "payment.html";
+            return;
+          }
 
+          try {
+            const res = await fetch(
+              "https://pl-project-f9be7-default-rtdb.firebaseio.com/tickets/" +
+                ticketId +
+                ".json"
+            );
+            const data = await res.json();
 
-    // Match Start and Entry Time
-    let matchStart = 'N/A';
-    let entryTime = 'N/A';
-    if(match.date && match.time){
-        const matchDateTime = dayjs(`${match.date}T${match.time}`);
-        if(matchDateTime.isValid()){
-            matchStart = matchDateTime.format('h:mm A');
-            // मैच शुरू होने से 2.5 घंटे पहले एंट्री टाइम
-            entryTime = matchDateTime.subtract(2.5,'hours').format('h:mm A'); 
-        }
-    }
+            if (!data) throw new Error("No ticket found");
 
-    // Seat/Ticket Numbers
-    const matchNo = seats.matchNo;
-    const ZONE = seats.ZONE;
-    const TIER_BLOCK = seats.TIER_BLOCK;
-    const ROW = seats.ROW;
-    const SEAT_NO = seats.SEAT_NO;
-    const GATE = seats.GATE;
-    const ticketNo = `M${matchNo}-${ZONE.substring(0,1)}${TIER_BLOCK}-${ROW}${SEAT_NO}`;
-    const qrDataContent = `TKT-${ticketNo}-${ticketData.qty}-${match.date}-${ticketData.bookingId.slice(-6)}`;
-    const uniqueBarcodeData = ticketData.utr;
+            // Display fetched data
+            document.getElementById("matchName").innerText =
+              data.match || "Unknown Match";
+            document.getElementById("stadiumName").innerText =
+              data.stadium || "Unknown Stadium";
+            document.getElementById("dateDisplay").innerText =
+              data.date || "Not Available";
+            document.getElementById("seatType").innerText =
+              data.seatType || "General";
+            document.getElementById("qty").innerText = data.qty || "1";
+            document.getElementById("totalAmount").innerText =
+              data.amount || "0";
+            document.getElementById("utrDisplay").innerText =
+              "UTR: " + (data.utr || "N/A");
+            document.getElementById("ticketId").innerText =
+              "Ticket ID: " + ticketId;
 
-    // Price Breakdown
-    const basePrice = ticketData.price;
-    const taxesAndFees = Math.round(ticketData.total - (basePrice * ticketData.qty));
-    const finalTotal = ticketData.total;
-
-    // Apply VIP Style if needed
-    const ticketElement = document.getElementById('ticket');
-    if(ticketData.seatType && ticketData.seatType.toLowerCase().includes('vip')){
-        ticketElement.classList.add('vip-style');
-    }
-
-    // --- DISPLAY DATA ---
-
-    // Header Metadata
-    document.getElementById('sr-left').textContent = ticketNo;
-    document.getElementById('sr-right').textContent = `Match ${matchNo}`;
-    document.getElementById('roll-right').textContent = ticketData.qty;
-    document.getElementById('code-left').textContent = `A${ticketNo.substring(ticketNo.length-6)}`;
-    document.getElementById('ticketcode').textContent = qrDataContent.slice(0,15)+'...';
-    document.getElementById('basepricetext').textContent = `₹${basePrice} x ${ticketData.qty} = ₹${basePrice * ticketData.qty} + ₹${taxesAndFees} (TAXES)`;
-    document.getElementById('bookingid').textContent = ticketData.bookingId || 'N/A';
-    document.getElementById('totalprice').textContent = finalTotal;
-
-    // Main Center Content
-    document.getElementById('leftlogo').src = match.img1;
-    document.getElementById('leftteam').textContent = team1Name;
-    document.getElementById('ipllogo').src = DEFAULT_IPL_LOGO;
-    document.getElementById('oppsmalllogo').src = match.img2;
-
-    // महत्वपूर्ण डिटेल्स (टीम, समय, स्टेडियम)
-    document.getElementById('matchno').textContent = `OFFICIAL TICKET | ${ticketData.seatType.toUpperCase()} | MATCH ${matchNo}`;
-    document.getElementById('teamstext').textContent = match.teams;
-    document.getElementById('datetext').textContent = `DATE: ${match.date} | GATES OPEN: ${entryTime}`;
-    document.getElementById('stadtext').textContent = match.stadium;
-
-    // Bottom Band
-    document.getElementById('matchstart').textContent = matchStart;
-    document.getElementById('entrytime').textContent = entryTime;
-    document.getElementById('zone').textContent = ZONE;
-    document.getElementById('tier').textContent = TIER_BLOCK;
-    document.getElementById('row').textContent = ROW;
-    document.getElementById('seat').textContent = SEAT_NO;
-    document.getElementById('gate').textContent = GATE;
-    document.getElementById('gateghost').textContent = GATE;
-
-    // Barcode
-    JsBarcode("#barcode", uniqueBarcodeData, {
-        format:"CODE128",
-        displayValue:false,
-        width:2,
-        height:50,
-        margin:0
-    });
-
-    // QR Code
-    new QRious({
-        element: document.getElementById('qrcodeCanvas'),
-        value: qrDataContent,
-        size:100,
-        level:'H'
-    });
-
-    // Download Function
-    document.getElementById('downloadbtn').addEventListener('click',()=>{
-        confetti({
-            particleCount:150,
-            spread:70,
-            origin:{y:0.6}
+            // Generate QR code
+            const qr = new QRCode(document.getElementById("qrCode"), {
+              text: `IPL Ticket | ${data.match} | ${data.stadium} | ${data.utr}`,
+              width: 130,
+              height: 130,
+            });
+          } catch (e) {
+            console.error(e);
+            alert("Error loading ticket data!");
+          }
         });
-        
-        // html2canvas को cross-origin इमेज के लिए useCORS: true विकल्प का उपयोग करें
-        document.getElementById('downloadbtn').style.display='none';
-        html2canvas(document.getElementById('ticket'),{
-            scale:3,
-            useCORS:true // यह क्रॉस-ऑरिजन इमेज को ठीक से कैप्चर करने के लिए महत्वपूर्ण है
-        }).then(canvas=>{
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = `IPL_E-TICKET_${ticketNo}.png`;
-            link.click();
-            document.getElementById('downloadbtn').style.display='block';
-        });
-    });
-</script>
-</body>
+      </script>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    </body>
 </html>
