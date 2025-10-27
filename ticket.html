@@ -173,7 +173,8 @@
     const FALLBACK_LOGO_1 = "https://via.placeholder.com/150x150/0b81d1/ffffff?text=Team+A+Logo"; 
     const FALLBACK_LOGO_2 = "https://via.placeholder.com/150x150/f84464/ffffff?text=Team+B+Logo"; 
 
-    const DEMO_KEY = 'currentBookingData'; 
+    // **LOCAL STORAGE KEY**
+    const DATA_KEY = 'currentBookingData'; 
 
     // Fallback/Default Data (डेटा न मिलने पर इसका उपयोग किया जाता है)
     const defaultTicketData = {
@@ -201,9 +202,10 @@
         }
     };
 
-    let ticketData = JSON.parse(sessionStorage.getItem(DEMO_KEY));
+    // **LOCAL STORAGE से डेटा लोड करें**
+    let ticketData = JSON.parse(localStorage.getItem(DATA_KEY));
     if (!ticketData || !ticketData.seatDetails) {
-        console.warn("Could not find ticket data in sessionStorage, loading default data.");
+        console.warn("Could not find ticket data in localStorage, loading default data.");
         ticketData = defaultTicketData;
     }
 
