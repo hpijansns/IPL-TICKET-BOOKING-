@@ -1,254 +1,393 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPL Admin Panel</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>IPL Admin Panel — Manage Matches & Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-body{font-family:sans-serif;margin:0;padding:0;background:#f0f0f0;}
-.container{max-width:900px;margin:20px auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.2);}
-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;background:#333545;color:#fff;padding:10px;border-radius:10px 10px 0 0;}
-header h3{margin:0;font-size:16px;}
-header button{padding:6px 12px;background:#f84464;color:#fff;border:none;border-radius:5px;cursor:pointer;margin-top:5px;}
-header button:hover{background:#c4242b;}
-form input,form button,form label{padding:10px;margin:5px 0;border-radius:5px;border:1px solid #ccc;font-size:14px;width:100%;box-sizing:border-box;}
-form button{background:#f84464;color:#fff;border:none;cursor:pointer;}
-form button:hover{background:#c4242b;}
-table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px;}
-th,td{border:1px solid #ccc;padding:8px;text-align:center;}
-img.preview{width:50px;height:50px;object-fit:contain;border-radius:5px;}
-button.edit{background:#4caf50;color:#fff;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px;}
-button.edit:hover{background:#388e3c;}
-button.delete{background:#f44336;color:#fff;border:none;padding:5px 10px;border-radius:5px;font-size:12px;}
-button.delete:hover{background:#c4242b;}
-#loginBox{background:#fff;padding:20px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.2);width:90%;max-width:350px;margin:50px auto;text-align:center;}
-#loginBox input{width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;}
-#loginBox button{width:100%;padding:11px;background:#f84464;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:16px;}
-#loginBox button:hover{background:#c4242b;}
-input[type="text"][id$="_url"] { background: #ffebee; border-color: #f84464; }
+  :root{--accent:#f84464;--accent-2:#c4242b;--bg:#f5f6f8;--card:#fff;--muted:#777}
+  *{box-sizing:border-box;font-family:'Roboto',sans-serif}
+  body{margin:0;background:var(--bg);color:#111}
+  header{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+  header h1{font-size:18px;margin:0;font-weight:900}
+  header .small{font-weight:500;opacity:0.95}
+  .wrap{max-width:1100px;margin:26px auto;padding:0 16px}
+  .grid{display:grid;grid-template-columns:320px 1fr;gap:20px}
+  .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,0.06)}
+  label{display:block;font-weight:700;margin:10px 0 6px}
+  input[type=text], input[type=date], input[type=time], textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e9}
+  button{background:var(--accent);border:none;color:#fff;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer}
+  button.secondary{background:#444}
+  .muted{color:var(--muted);font-size:13px}
+  .match-list{display:grid;gap:12px}
+  .match-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;border:1px solid #eee}
+  .match-item img{width:64px;height:64px;object-fit:cover;border-radius:8px}
+  .match-meta{flex:1}
+  .row{display:flex;gap:10px;align-items:center}
+  .topbar{display:flex;gap:10px;align-items:center}
+  .right{display:flex;gap:8px}
+  .hidden{display:none}
+  .danger{background:#e83b3b}
+  .uploader{border:1px dashed #ddd;padding:10px;border-radius:8px;text-align:center}
+  .small-muted{font-size:12px;color:#888}
+  pre{white-space:pre-wrap;word-break:break-all;background:#fafafa;padding:8px;border-radius:8px;border:1px solid #eee}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}} 
 </style>
 </head>
 <body>
-
-<!-- LOGIN BOX -->
-<div id="loginBox">
-<h2>Admin Login</h2>
-<input type="text" id="username" placeholder="Phone / Username">
-<input type="password" id="password" placeholder="Password">
-<button type="button" onclick="login()">Login</button>
-<p style="font-size:12px;color:#666;margin-top:10px;">Demo: <strong>7627055204</strong> / <strong>Pooja2005</strong></p>
-</div>
-
-<!-- DASHBOARD -->
-<div class="container" id="dashboard" style="display:none;">
 <header>
-<h3>Admin Dashboard - <span id="adminUser"></span></h3>
-<button onclick="logout()">Logout</button>
+  <div>
+    <h1>IPL Admin Panel</h1>
+    <div class="small">Manage matches • banners • logos • bookings</div>
+  </div>
+  <div id="admin-actions" class="topbar">
+    <div id="admin-email" class="small-muted"></div>
+    <button id="logoutBtn" class="secondary hidden">Logout</button>
+  </div>
 </header>
 
-<h2>Update Banner</h2>
-<form id="bannerForm">
-<label>Upload Banner Image:</label>
-<input type="file" id="bannerInput" accept="image/*">
-<img id="bannerPreview" class="preview" style="display:none;"> 
-<button type="submit">Save Banner</button>
-</form>
+<main class="wrap">
+  <div class="grid">
+    <!-- LEFT: Controls -->
+    <div>
+      <div class="card" id="auth-card">
+        <h3 id="auth-title">Admin Login</h3>
+        <div id="auth-form">
+          <label>Username</label>
+          <input id="email" type="text" placeholder="7627055204">
+          <label>Password</label>
+          <input id="password" type="password" placeholder="Pooja2005">
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button id="loginBtn">Login</button>
+            <button id="createAdminBtn" class="secondary hidden">Create Admin</button>
+          </div>
+          <div class="muted" style="margin-top:10px">Hint: temporary local login available. Replace with Firebase Auth for full security.</div>
+        </div>
+        <div id="auth-help" class="muted" style="margin-top:10px"></div>
+      </div>
 
-<h2>Update IPL Logo</h2>
-<form id="logoForm">
-<label>Upload IPL/Tournament Logo:</label>
-<input type="file" id="logoInput" accept="image/*">
-<img id="logoPreview" class="preview" style="display:none;"> 
-<button type="submit">Save Logo</button>
-</form>
+      <div class="card" style="margin-top:16px">
+        <h3>Upload Banner & Logo</h3>
+        <div style="display:grid;gap:8px">
+          <label>Banner Image</label>
+          <div class="uploader" id="bannerUploader">Drop or select file
+            <input id="bannerFile" type="file" accept="image/*" style="display:none">
+          </div>
+          <label>Logo Image</label>
+          <div class="uploader" id="logoUploader">Drop or select file
+            <input id="logoFile" type="file" accept="image/*" style="display:none">
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button id="uploadAssetsBtn">Upload & Save</button>
+            <button id="previewAssetsBtn" class="secondary">Preview</button>
+          </div>
+          <div id="assetsStatus" class="small-muted" style="margin-top:8px"></div>
+        </div>
+      </div>
 
-<h2>Manage Matches</h2>
-<form id="matchForm">
-<input type="text" id="teams" placeholder="Team1 vs Team2" required>
-<input type="date" id="date" required>
-<input type="time" id="time" required>
-<input type="text" id="stadium" placeholder="Stadium" required>
+      <div class="card" style="margin-top:16px">
+        <h3>Quick Actions</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="clearMatchesBtn" class="danger">Delete ALL Matches</button>
+          <button id="exportMatchesBtn" class="secondary">Export Matches JSON</button>
+          <button id="importMatchesBtn" class="secondary">Import Matches JSON</button>
+          <input id="importFile" type="file" accept="application/json" style="display:none">
+        </div>
+        <div class="small-muted" style="margin-top:8px">Use with caution: deleting is permanent unless you have a backup.</div>
+      </div>
+    </div>
 
-<label>Team1 Image (Upload or URL):</label>
-<input type="file" id="img1_file" accept="image/*" onchange="previewImage(this,'preview1')">
-<input type="text" id="img1_url" placeholder="Paste Image URL for Team 1">
+    <!-- RIGHT: Content (matches table + form + bookings) -->
+    <div>
+      <div class="card">
+        <h3>Add / Edit Match</h3>
+        <div style="display:grid;gap:8px">
+          <label>Teams (display string)</label>
+          <input id="teamsInput" type="text" placeholder="Mumbai Indians vs Chennai Super Kings">
 
-<label>Team2 Image (Upload or URL):</label>
-<input type="file" id="img2_file" accept="image/*" onchange="previewImage(this,'preview2')">
-<input type="text" id="img2_url" placeholder="Paste Image URL for Team 2">
+          <label>Team 1 Image (URL or upload)</label>
+          <input id="img1Url" type="text" placeholder="https://...">
+          <input id="img1File" type="file" accept="image/*">
 
-<img id="preview1" class="preview" style="display:none;"> 
-<img id="preview2" class="preview" style="display:none;"> 
-<button type="submit">Save Match</button>
-</form>
+          <label>Team 2 Image (URL or upload)</label>
+          <input id="img2Url" type="text" placeholder="https://...">
+          <input id="img2File" type="file" accept="image/*">
 
-<table>
-<thead>
-<tr>
-<th>#</th><th>Teams</th><th>Date</th><th>Time</th><th>Stadium</th><th>Team1 Img</th><th>Team2 Img</th><th>Actions</th>
-</tr>
-</thead>
-<tbody id="matchesTable"></tbody>
-</table>
-</div>
+          <div style="display:flex;gap:8px">
+            <div style="flex:1">
+              <label>Date</label>
+              <input id="dateInput" type="date">
+            </div>
+            <div style="flex:1">
+              <label>Time (IST)</label>
+              <input id="timeInput" type="time">
+            </div>
+          </div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+          <label>Stadium</label>
+          <input id="stadiumInput" type="text" placeholder="Eden Gardens">
+
+          <label>Optional: Additional metadata (JSON)</label>
+          <textarea id="metaInput" rows="3" placeholder='{"group":"A","tickets":20000}'></textarea>
+
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="saveMatchBtn">Save Match</button>
+            <button id="resetMatchBtn" class="secondary">Reset</button>
+          </div>
+
+          <div id="matchFormMsg" class="small-muted"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3>Matches</h3>
+          <div class="row">
+            <select id="sortSelect"><option value="dateAsc">Date ↑</option><option value="dateDesc">Date ↓</option></select>
+            <button id="refreshMatchesBtn" class="secondary">Refresh</button>
+          </div>
+        </div>
+        <div id="matchesList" class="match-list" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Bookings</h3>
+        <div id="bookingsList" style="display:grid;gap:8px;margin-top:8px"></div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- Firebase SDKs (compat for ease) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
 <script>
-// --- Firebase Config ---
+// ---------------- CONFIGURE FIREBASE ----------------
+// I inserted the databaseURL you provided. Replace the other fields below with your project values for full functionality.
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "pl-project-f9be7.firebaseapp.com",
-  databaseURL: "https://pl-project-f9be7-default-rtdb.firebaseio.com",
-  projectId: "pl-project-f9be7",
-  storageBucket: "pl-project-f9be7.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "REPLACE_WITH_YOUR_API_KEY",
+  authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
+  databaseURL: "https://pl-project-f9be7-default-rtdb.firebaseio.com/",
+  projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
+  storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
+  appId: "REPLACE_WITH_YOUR_APP_ID"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const storage = firebase.storage ? firebase.storage() : null;
 
-// --- Admin Credentials ---
-const ADMIN_USER = "7627055204";
-const ADMIN_PASS = "Pooja2005";
-let editKey = null;
+// ----------------- SIMPLE LOCAL AUTH (fallback) -----------------
+// You gave these credentials — local client-side check so you can log in immediately.
+// WARNING: this is client-side and not secure for production. Replace with Firebase Auth later.
+const LOCAL_ADMIN = { username: '7627055204', password: 'Pooja2005' };
+function isLoggedIn(){ return localStorage.getItem('admin_logged')==='1'; }
+function setLogged(val){ if(val) localStorage.setItem('admin_logged','1'); else localStorage.removeItem('admin_logged'); }
 
-// --- Login & Logout ---
-function login(){
-  const u = document.getElementById("username").value.trim();
-  const p = document.getElementById("password").value.trim();
-  if(u===ADMIN_USER && p===ADMIN_PASS){
-    localStorage.setItem("isAdmin","true");
-    showDashboard();
-  } else alert("Invalid username or password");
-}
+// UI refs
+const $ = id => document.getElementById(id);
+let editingKey = null;
 
-function logout(){
-  localStorage.removeItem("isAdmin");
-  document.getElementById("dashboard").style.display="none";
-  document.getElementById("loginBox").style.display="block";
-}
-
-// --- Image Preview ---
-function previewImage(input, previewId){
-  const preview = document.getElementById(previewId);
-  if(input.files[0]){
-    const reader = new FileReader();
-    reader.onload = ()=>{preview.src=reader.result; preview.style.display="inline-block";};
-    reader.readAsDataURL(input.files[0]);
-  } else if(input.value.trim()){ preview.src=input.value.trim(); preview.style.display="inline-block"; }
-  else { preview.src=""; preview.style.display="none"; }
-}
-
-// --- Save Banner ---
-document.getElementById("bannerForm").addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const file = document.getElementById("bannerInput").files[0];
-  if(!file){ alert("Select a banner image"); return; }
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    db.ref("settings/banner").set(reader.result).then(()=>alert("Banner saved!"));
-  };
-  reader.readAsDataURL(file);
+// show/hide auth UI on load
+window.addEventListener('load', ()=>{
+  if(isLoggedIn()){
+    $('auth-card').classList.add('hidden');
+    $('admin-email').textContent = LOCAL_ADMIN.username;
+    $('logoutBtn').classList.remove('hidden');
+    loadAllData();
+  }
 });
 
-// --- Save IPL Logo ---
-document.getElementById("logoForm").addEventListener("submit", async (e)=>{
-  e.preventDefault();
-  const file = document.getElementById("logoInput").files[0];
-  if(!file){ alert("Select a logo image"); return; }
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    db.ref("settings/iplLogo").set(reader.result).then(()=>alert("Logo saved!"));
-  };
-  reader.readAsDataURL(file);
-});
-
-// --- Save Matches ---
-async function saveMatch(e){
-  e.preventDefault();
-  const teams = document.getElementById("teams").value.trim();
-  const date = document.getElementById("date").value;
-  const time = document.getElementById("time").value;
-  const stadium = document.getElementById("stadium").value.trim();
-  if(!teams||!date||!time||!stadium){ alert("Fill all fields"); return; }
-
-  let img1 = document.getElementById("img1_url").value.trim();
-  let img2 = document.getElementById("img2_url").value.trim();
-
-  const convertFileToBase64 = (file) => new Promise((res,rej)=>{
-    const reader = new FileReader();
-    reader.onload=()=>res(reader.result);
-    reader.onerror=err=>rej(err);
-    reader.readAsDataURL(file);
-  });
-
-  if(document.getElementById("img1_file").files[0])
-    img1 = await convertFileToBase64(document.getElementById("img1_file").files[0]);
-  if(document.getElementById("img2_file").files[0])
-    img2 = await convertFileToBase64(document.getElementById("img2_file").files[0]);
-
-  const matchData = {teams,date,time,stadium,img1,img2};
-
-  if(editKey){ await db.ref("matches/"+editKey).set(matchData); editKey=null; }
-  else await db.ref("matches").push(matchData);
-
-  document.getElementById("matchForm").reset();
-  renderTable();
-}
-
-// --- Render Matches ---
-function renderTable(){
-  const tableBody = document.getElementById("matchesTable");
-  tableBody.innerHTML="";
-  db.ref("matches").once("value").then(snapshot=>{
-    const data = snapshot.val();
-    if(!data){ tableBody.innerHTML="<tr><td colspan='8'>No matches added</td></tr>"; return; }
-    let i=1;
-    for(const key in data){
-      const m = data[key];
-      tableBody.innerHTML += `<tr>
-      <td>${i}</td><td>${m.teams}</td><td>${m.date}</td><td>${m.time}</td><td>${m.stadium}</td>
-      <td><img src="${m.img1}" class="preview"></td><td><img src="${m.img2}" class="preview"></td>
-      <td><button onclick="editMatch('${key}')">Edit</button>
-          <button onclick="deleteMatch('${key}')">Delete</button></td></tr>`;
-      i++;
+// login handler (will first try local login; if wishlist, it will try DB verify later)
+$('loginBtn').addEventListener('click', async ()=>{
+  const u = $('email').value.trim(); const p = $('password').value;
+  if(!u||!p) return alert('Enter username and password');
+  // local check
+  if(u === LOCAL_ADMIN.username && p === LOCAL_ADMIN.password){
+    setLogged(true);
+    $('auth-card').classList.add('hidden');
+    $('admin-email').textContent = u;
+    $('logoutBtn').classList.remove('hidden');
+    loadAllData();
+    return;
+  }
+  // else try simple DB-based check (if you later add admins in DB)
+  try{
+    const snap = await db.ref('admins').orderByChild('username').equalTo(u).once('value');
+    const val = snap.val();
+    if(val){
+      // pick first match
+      const key = Object.keys(val)[0]; const admin = val[key];
+      if(admin.password === p){ // plaintext password in DB — only if you used that approach
+        setLogged(true);
+        $('auth-card').classList.add('hidden');
+        $('admin-email').textContent = u;
+        $('logoutBtn').classList.remove('hidden');
+        loadAllData();
+        return;
+      }
     }
-  });
-}
-
-// --- Edit/Delete ---
-function editMatch(key){
-  editKey = key;
-  db.ref("matches/"+key).once("value").then(snapshot=>{
-    const m = snapshot.val();
-    document.getElementById("teams").value = m.teams;
-    document.getElementById("date").value = m.date;
-    document.getElementById("time").value = m.time;
-    document.getElementById("stadium").value = m.stadium;
-    document.getElementById("img1_url").value = m.img1;
-    document.getElementById("img2_url").value = m.img2;
-    document.getElementById("preview1").src = m.img1; document.getElementById("preview1").style.display="inline-block";
-    document.getElementById("preview2").src = m.img2; document.getElementById("preview2").style.display="inline-block";
-  });
-}
-
-function deleteMatch(key){ if(confirm("Delete this match?")) db.ref("matches/"+key).remove().then(()=>renderTable()); }
-
-// --- Show Dashboard ---
-function showDashboard(){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("dashboard").style.display="block";
-  document.getElementById("adminUser").textContent="Admin";
-  renderTable();
-}
-
-// --- Login Check ---
-document.addEventListener("DOMContentLoaded", ()=>{
-  if(localStorage.getItem("isAdmin")==="true") showDashboard();
-  document.getElementById("matchForm").addEventListener("submit", saveMatch);
+  }catch(e){ console.warn(e); }
+  alert('Login failed');
 });
+
+$('logoutBtn').addEventListener('click', ()=>{
+  setLogged(false);
+  $('auth-card').classList.remove('hidden');
+  $('admin-email').textContent = '';
+  $('logoutBtn').classList.add('hidden');
+});
+
+// ----------------- HELPERS -----------------
+function showStatus(el, msg, time=3000){
+  el.textContent = msg; if(time>0) setTimeout(()=>{ if(el.textContent===msg) el.textContent=''; }, time);
+}
+function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
+Object.defineProperty(JSON,'parseSafe',{value:function(s){try{return JSON.parse(s)}catch(e){return null}}});
+JSON.parseSafe = function(s){ try{return JSON.parse(s)}catch(e){return null} }
+
+// ----------------- UPLOAD ASSETS -----------------
+let bannerFile=null, logoFile=null;
+$('bannerUploader').addEventListener('click', ()=>$('bannerFile').click());
+$('logoUploader').addEventListener('click', ()=>$('logoFile').click());
+$('bannerFile').addEventListener('change', e=> bannerFile = e.target.files[0]);
+$('logoFile').addEventListener('change', e=> logoFile = e.target.files[0]);
+
+$('uploadAssetsBtn').addEventListener('click', async ()=>{
+  if(!storage) return alert('Storage not initialized. Fill firebaseConfig storageBucket and appId.');
+  if(!bannerFile && !logoFile) return showStatus($('assetsStatus'),'Select a file first');
+  $('assetsStatus').textContent = 'Uploading...';
+  try{
+    if(bannerFile){
+      const bRef = storage.ref('assets/banner-'+Date.now()+'.jpg');
+      await bRef.put(bannerFile);
+      const url = await bRef.getDownloadURL();
+      await db.ref('settings/banner').set(url);
+    }
+    if(logoFile){
+      const lRef = storage.ref('assets/logo-'+Date.now()+'.png');
+      await lRef.put(logoFile);
+      const url2 = await lRef.getDownloadURL();
+      await db.ref('settings/logo').set(url2);
+    }
+    showStatus($('assetsStatus'),'Uploaded & saved to settings',4000);
+    bannerFile = logoFile = null; $('bannerFile').value=''; $('logoFile').value='';
+    loadAllData();
+  }catch(err){ showStatus($('assetsStatus'),'Upload failed: '+err.message,5000); }
+});
+
+$('previewAssetsBtn').addEventListener('click', async ()=>{
+  const b = (await db.ref('settings/banner').once('value')).val();
+  const l = (await db.ref('settings/logo').once('value')).val();
+  alert('Banner URL:\n'+(b||'not set')+'\n\nLogo URL:\n'+(l||'not set'));
+});
+
+// ----------------- MATCH CRUD -----------------
+async function uploadFileIfPresent(file){
+  if(!file) return null;
+  if(!storage) return alert('Storage not initialized. Fill firebaseConfig storageBucket and appId.');
+  const ref = storage.ref('assets/match-'+Date.now()+'-'+file.name.replace(/\s+/g,'_'));
+  await ref.put(file);
+  return await ref.getDownloadURL();
+}
+
+$('saveMatchBtn').addEventListener('click', async ()=>{
+  if(!isLoggedIn()) return alert('Please login as admin');
+  const teams = $('teamsInput').value.trim();
+  const date = $('dateInput').value;
+  const time = $('timeInput').value;
+  const stadium = $('stadiumInput').value.trim();
+  const metaText = $('metaInput').value.trim();
+  if(!teams||!date) return showStatus($('matchFormMsg'),'Teams and Date required');
+
+  $('saveMatchBtn').disabled = true; showStatus($('matchFormMsg'),'Saving...');
+  try{
+    const img1File = $('img1File').files[0];
+    const img2File = $('img2File').files[0];
+    const img1 = img1File ? await uploadFileIfPresent(img1File) : ($('img1Url').value.trim() || null);
+    const img2 = img2File ? await uploadFileIfPresent(img2File) : ($('img2Url').value.trim() || null);
+    const payload = {teams, date, time: time||null, stadium:stadium||null, img1:img1||null, img2:img2||null, meta:metaText?JSON.parseSafe(metaText):null, updatedAt:Date.now()};
+    if(editingKey){
+      await db.ref('matches/'+editingKey).update(payload);
+      showStatus($('matchFormMsg'),'Match updated',3000);
+    } else {
+      const newRef = db.ref('matches').push();
+      await newRef.set(payload);
+      showStatus($('matchFormMsg'),'Match added',3000);
+    }
+    resetMatchForm(); loadMatches();
+  }catch(err){ showStatus($('matchFormMsg'),'Save failed: '+err.message,5000); }
+  $('saveMatchBtn').disabled = false;
+});
+
+$('resetMatchBtn').addEventListener('click', resetMatchForm);
+function resetMatchForm(){ editingKey = null; $('teamsInput').value=''; $('img1Url').value=''; $('img2Url').value=''; $('dateInput').value=''; $('timeInput').value=''; $('stadiumInput').value=''; $('metaInput').value=''; $('img1File').value=''; $('img2File').value=''; $('matchFormMsg').textContent=''; }
+
+async function loadMatches(){
+  const snap = await db.ref('matches').once('value');
+  const val = snap.val(); const list = $('matchesList'); list.innerHTML='';
+  if(!val){ list.innerHTML='<div class="small-muted">No matches</div>'; return; }
+  const arr = Object.entries(val).map(([k,v])=>({id:k,...v}));
+  const sort = $('sortSelect').value;
+  arr.sort((a,b)=>{ const da=new Date(a.date+' '+(a.time||'00:00')), dbt=new Date(b.date+' '+(b.time||'00:00')); return sort==='dateAsc'?da-dbt:dbt-da; });
+  arr.forEach(m=>{
+    const item = document.createElement('div'); item.className='match-item';
+    const img = document.createElement('img'); img.src = m.img1 || m.img2 || 'https://iili.io/K8L5Ots.jpg';
+    const meta = document.createElement('div'); meta.className='match-meta';
+    meta.innerHTML = `<strong>${escapeHtml(m.teams||'Untitled')}</strong><div class='small-muted'>${m.date} ${m.time||''} • ${m.stadium||''}</div>`;
+    const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';
+    const editBtn = document.createElement('button'); editBtn.textContent='Edit'; editBtn.addEventListener('click', ()=>fillFormForEdit(m));
+    const delBtn = document.createElement('button'); delBtn.textContent='Delete'; delBtn.className='danger'; delBtn.addEventListener('click', ()=>deleteMatchWithConfirm(m.id));
+    actions.appendChild(editBtn); actions.appendChild(delBtn);
+    item.appendChild(img); item.appendChild(meta); item.appendChild(actions);
+    list.appendChild(item);
+  });
+}
+
+function fillFormForEdit(m){ editingKey = m.id; $('teamsInput').value = m.teams||''; $('img1Url').value = m.img1||''; $('img2Url').value = m.img2||''; $('dateInput').value = m.date||''; $('timeInput').value = m.time||''; $('stadiumInput').value = m.stadium||''; $('metaInput').value = m.meta?JSON.stringify(m.meta):''; window.scrollTo({top:0,behavior:'smooth'}); }
+
+async function deleteMatchWithConfirm(id){ if(!confirm('Delete this match?')) return; await db.ref('matches/'+id).remove(); loadMatches(); }
+
+// ----------------- BOOKINGS -----------------
+async function loadBookings(){
+  const snap = await db.ref('bookings').once('value'); const val = snap.val(); const out = $('bookingsList'); out.innerHTML='';
+  if(!val){ out.innerHTML='<div class="small-muted">No bookings yet</div>'; return; }
+  const arr = Object.entries(val).map(([k,v])=>({id:k,...v}));
+  arr.slice().reverse().forEach(b=>{
+    const el = document.createElement('div'); el.className='match-item';
+    const meta = document.createElement('div'); meta.className='match-meta';
+    meta.innerHTML = `<strong>${escapeHtml(b.name||'Guest')}</strong><div class='small-muted'>Match: ${escapeHtml(b.match||'—')} • Seats: ${escapeHtml(String(b.seats||'1'))}</div><div style='margin-top:6px'><pre>${escapeHtml(JSON.stringify(b,null,2))}</pre></div>`;
+    el.appendChild(meta); out.appendChild(el);
+  });
+}
+
+// ----------------- QUICK ACTIONS -----------------
+$('refreshMatchesBtn').addEventListener('click', loadMatches);
+$('clearMatchesBtn').addEventListener('click', async ()=>{
+  if(!confirm('Delete ALL matches? This cannot be undone.')) return;
+  await db.ref('matches').remove(); loadMatches();
+});
+
+$('exportMatchesBtn').addEventListener('click', async ()=>{
+  const snap = await db.ref('matches').once('value'); const val = snap.val()||{}; const blob = new Blob([JSON.stringify(val,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='matches.json'; a.click(); URL.revokeObjectURL(url);
+});
+$('importMatchesBtn').addEventListener('click', ()=>$('importFile').click());
+$('importFile').addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return; const text = await f.text(); try{ const obj = JSON.parse(text); await db.ref('matches').set(obj); showStatus($('matchFormMsg'),'Imported matches'); loadMatches(); }catch(err){ showStatus($('matchFormMsg'),'Import failed: '+err.message,5000); }
+});
+
+// ----------------- LOAD ALL -----------------
+async function loadAllData(){ try{ await loadMatches(); await loadBookings(); }catch(e){ console.warn('DB error',e); alert('Database error — check firebaseConfig and DB rules.'); } }
+$('sortSelect').addEventListener('change', loadMatches);
+
+// init
+resetMatchForm();
 </script>
+
 </body>
 </html>
