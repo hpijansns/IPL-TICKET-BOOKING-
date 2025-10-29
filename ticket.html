@@ -1,204 +1,368 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your IPL Ticket</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-body {
-  margin:0;
-  padding:0;
-  font-family:'Roboto',sans-serif;
-  background:#f0f0f0;
-  color:#000;
-}
-.ticket-container {
-  max-width:500px;
-  margin:40px auto;
-  background:#fff;
-  border-radius:20px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.15);
-  overflow:hidden;
-  position:relative;
-}
-.header {
-  background:linear-gradient(90deg,#1976d2,#0b81d1);
-  text-align:center;
-  padding:20px;
-}
-.header img {
-  height:60px;
-}
-.match-info {
-  text-align:center;
-  padding:15px 10px;
-}
-.teams {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:15px;
-  margin:15px 0;
-}
-.teams img {
-  width:70px;
-  height:70px;
-  object-fit:contain;
-}
-.teams span {
-  font-size:22px;
-  font-weight:700;
-  color:#d32f2f;
-}
-.details {
-  text-align:center;
-  line-height:1.6;
-  padding:10px;
-}
-.details strong {
-  color:#333;
-}
-.qr-barcode {
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
-  padding:20px;
-}
-.qr-barcode img {
-  width:120px;
-  height:120px;
-  object-fit:contain;
-}
-.download-btn {
-  display:block;
-  width:80%;
-  margin:15px auto 25px;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:linear-gradient(90deg,#43a047,#2e7d32);
-  color:#fff;
-  font-size:16px;
-  font-weight:700;
-  cursor:pointer;
-  transition:0.3s;
-}
-.download-btn:hover {
-  background:linear-gradient(90deg,#2e7d32,#1b5e20);
-}
-.footer {
-  text-align:center;
-  font-size:12px;
-  color:#777;
-  padding-bottom:15px;
-}
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Official IPL Match Ticket - Stable and Realistic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Oswald:wght@500;700&family=Cutive+Mono&display=swap" rel="stylesheet">
+    <style>
+        /* --- STYLES (Stable Version) --- */
+        :root{
+            --page-w:980px;
+            --paper:#fffdf9;
+            --muted:#666;
+            --blue:#0b81d1;
+            --blue-deep:#0468a8;
+            --highlight-color: #f84464; /* IPL Pink */
+            --subtle-bg: #f5f5f5; 
+        }
+        body {
+            font-family:'Roboto', sans-serif;
+            margin:0;
+            min-height:100vh;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+            background:#e0e0e0;
+            padding:20px 10px;
+        }
+        .ticket {
+            width:95%;
+            max-width:var(--page-w);
+            background: var(--paper);
+            border-radius:15px; 
+            box-shadow:0 30px 60px rgba(0,0,0,0.4), inset 0 2px 15px rgba(0,0,0,0.1);
+            position:relative;
+            overflow:hidden;
+            padding:25px;
+            display:flex;
+            flex-direction:column;
+            /* Simple Background Pattern */
+            background-image: linear-gradient(transparent 0, rgba(0,0,0,0.03) 1px), linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px), repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 1px, transparent 1px, transparent 10px), linear-gradient(135deg, rgba(248, 68, 100, 0.06) 50%, rgba(11, 129, 209, 0.06) 50%);
+            background-size:100% 10px, 10px 100%, 150px 150px, 200px 200px;
+            clip-path: polygon(3% 0%, 97% 0%, 100% 3%, 100% 97%, 97% 100%, 3% 100%, 0% 97%, 0% 3%);
+        }
+        .ticket::before{
+            content: "VALID TICKET ★ IPL 2025";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-family: 'Oswald', sans-serif;
+            font-size: 10vw; 
+            font-weight: 900;
+            color: rgba(248, 68, 100, 0.03); 
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .meta-left, .meta-right{position:absolute; font-size:12px; color:var(--muted); line-height:1.12; z-index: 10;}
+        .meta-left{left:22px; top:20px; text-align:left;}
+        .meta-right{right:20px; top:20px; text-align:right;}
+        .meta-left b, .meta-right b{display:block; font-weight:900; color:#111; font-size:13px;}
+        .meta-info{position:absolute; font-size:10px; color:#a0a0a0; line-height:1.1; font-weight:700; z-index: 10;}
+        .meta-info.utr{left:22px; top:65px;}
+        .meta-info.booking{right:20px; top:65px; text-align:right;}
+        .top-center-price{position:absolute; left:50%; transform:translateX(-50%); top:20px; font-size:12px; color:var(--muted); text-align:center; line-height:1.15; z-index: 10;}
+        .top-center-price b{display:block; font-weight:900; color:#111; margin-top:3px; font-size:15px;}
+        .top-center-price small {display:block; font-size:10px; color:var(--highlight-color); font-weight:700;}
+        
+        .main{display:flex; gap:16px; align-items:stretch; padding:40px 25px 20px 25px; position:relative; z-index: 2;}
+        .left{width:290px; display:flex; flex-direction:column; align-items:center; gap:10px;}
+        .left .biglogo{width:100%; min-height:130px; display:flex; align-items:center; justify-content:center; background:linear-gradient(145deg,#fdfdfd,#f0f0f0); border-radius:8px; overflow:hidden; box-shadow: inset 0 2px 6px rgba(0,0,0,0.1), 0 5px 15px rgba(0,0,0,0.2);}
+        .left .biglogo img{width:100%; height:auto; object-fit:contain; padding:10px;}
+        .left .teamname{font-weight:800; color:#222; font-size:15px; text-align:center; letter-spacing:0.3px;}
+        
+        .center{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; position:relative;}
+        .center .small-logos{display:flex; gap:15px;}
+        .center .small-logos .box{width:100px; height:36px; border-radius:6px; background:linear-gradient(145deg,#fafafa,#f0f0f0); display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);}
+        .center .small-logos .box img{max-width:88%; max-height:88%;}
+        .center .matchno{font-family: 'Oswald', sans-serif; font-weight:900; font-size:18px; color:var(--highlight-color); margin-top:5px; text-transform: uppercase; letter-spacing: 1px;}
+        .center .teams{margin-top:2px; font-weight:800; font-size:20px; text-align:center; color:#111;}
+        .center .date{margin-top:8px; font-size:14px; color:#333; font-weight:600; text-align:center; border-bottom:1px dashed #ccc; padding-bottom: 5px;}
+        .center .stadium{margin-top:6px; font-size:13px; color:var(--muted); font-weight: 500; text-align:center;}
+        
+        .right{width:220px; display:flex; flex-direction:column; align-items:center; gap:10px; padding-left:15px; border-left:1px dashed rgba(0,0,0,0.2); background:linear-gradient(90deg, rgba(255,255,255,0.7), rgba(250,250,250,0.98));}
+        .right .qr-box{width:110px; height:110px; border:3px solid #111; padding:5px; background: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center;}
+        .right .qr-box canvas { max-width: 100%; max-height: 100%; display: block; }
+        .right .mini-text{font-size:13px; color:#111; text-align:center; line-height:1.05; font-weight:700; margin-top:5px;}
+        .right .barcode-box{margin-top:10px; padding:5px; border:1px solid #ddd; border-radius:4px; background:#fff;}
+        .right .valid-if{font-size:8.5px; color:var(--highlight-color); text-align:center; font-weight:700; border:1px solid var(--highlight-color); padding:3px; margin-top:10px; border-radius:3px;}
+        
+        /* Stable Perforation Line */
+        .perfor{position:absolute; right:245px; top:58px; height:190px; pointer-events:none; background:repeating-linear-gradient(to bottom, rgba(0,0,0,0.15) 0 2px, transparent 2px 6px); width:3px; border-radius:50%;}
+
+        .bottom{margin-top:16px; background: linear-gradient(180deg, var(--blue), var(--blue-deep)); color:#fff; border-radius:8px; padding:15px 18px; display:flex; gap:12px; align-items:center; justify-content:space-between; font-weight:900; box-shadow: inset 0 -8px 15px rgba(0,0,0,0.3); position:relative; z-index: 2;}
+        .bottom .cell{flex:1; text-align:center; font-size:20px; line-height: 1.1;}
+        .bottom .cell small{ display:block; font-size:11px; font-weight:700; opacity:0.95; margin-bottom:8px;}
+        
+        /* VIP Style (Kept as it is simple and effective) */
+        .vip-style .bottom { background: linear-gradient(180deg, #ffd700, #daa520); color: #333; box-shadow: inset 0 -8px 15px rgba(100,100,100,0.4);}
+        .vip-style .bottom small { color: #666; opacity: 1;}
+        .vip-style .meta-left b, .vip-style .meta-right b, .vip-style .top-center-price b { color: #8b4513; }
+        .vip-style .matchno { color: #8b4513; }
+
+        /* Terms & Conditions */
+        .terms {
+            margin-top: 25px;
+            padding: 15px 25px;
+            background: var(--subtle-bg);
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 11px;
+            color: #555;
+            line-height: 1.6;
+        }
+        .terms h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: var(--highlight-color); 
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        .terms ul {
+            list-style-type: disc;
+            margin: 5px 0 0 15px;
+            padding: 0;
+        }
+        .terms ul li {
+            margin-bottom: 3px;
+        }
+
+        /* --- MEDIA QUERIES --- */
+        @media (max-width:900px){
+            .main{flex-direction:column; padding:20px;}
+            .left, .center, .right{width:100%; text-align:center; padding-left:0; border-left:none;}
+            .left .biglogo{width:80%; height:120px; margin:0 auto;}
+            .right{display:block;}
+            .right .qr-box, .right .barcode-box { margin: 10px auto; }
+            .bottom{flex-direction:column; gap:6px; font-size:16px;}
+            .gate-ghost{display:none;}
+            .perfor { display: none; }
+            .meta-left, .meta-right, .meta-info.utr, .meta-info.booking, .top-center-price { position: static; transform: none; text-align: center; margin: 5px 0; width: 100%; }
+            .meta-left { border-bottom: 1px dashed #eee; padding-bottom: 10px; margin-bottom: 10px; }
+            .bottom .cell { flex-basis: 100%; }
+            .terms { padding: 15px; font-size: 10px; }
+        }
+        /* --- END STYLES --- */
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <div class="ticket" id="ticket">
+        <div class="meta-left"><small>TICKET SERIAL NO.</small><b id="sr-left">000001</b><small>TICKET CODE</small><div id="code-left">A000001</div></div>
+        <div class="meta-info utr">PRICE BREAKDOWN: <span id="basepricetext"></span></div>
+        <div class="top-center-price"><small id="pricebreakup">INC. TAXES AND FEES</small><b>RS.<span id="totalprice">0</span></b></div>
+        <div class="meta-right"><small>MATCH ID</small><b id="sr-right">000001</b><small>QTY.</small><b id="roll-right">001</b></div>
+        <div class="meta-info booking">BOOKING ID: <span id="bookingid"></span></div>
 
-<script>
-// ============ Firebase Setup ============
-const firebaseConfig = {
-  apiKey: "FAKE-API-KEY-REPLACE-LATER",
-  authDomain: "pl-project-f9be7.firebaseapp.com",
-  databaseURL: "https://pl-project-f9be7-default-rtdb.firebaseio.com",
-  projectId: "pl-project-f9be7",
-  storageBucket: "pl-project-f9be7.appspot.com",
-  messagingSenderId: "0000000000",
-  appId: "1:0000000000:web:xxxxxxxxxxxxxx"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+        <div class="main">
+            <div class="left">
+                <div class="biglogo"><img id="leftlogo" src="" alt="Team Logo"></div>
+                <div class="teamname" id="leftteam"></div>
+            </div>
+            
+            <div class="center">
+                <div class="small-logos">
+                    <div class="box"><img id="ipllogo" src="" alt="IPL"></div>
+                    <div class="box"><img id="oppsmalllogo" src="" alt="Opponent Logo"></div>
+                </div>
+                <div class="matchno" id="matchno"></div>
+                <div class="teams" id="teamstext"></div>
+                <div class="date" id="datetext"></div>
+                <div class="stadium" id="stadtext"></div>
+                <div class="gate-ghost" id="gateghost">1</div>
+            </div>
+            
+            <div class="right">
+                <div class="qr-box"><canvas id="qrcodeCanvas" width="100" height="100"></canvas></div>
+                <div class="mini-text">TICKET CODE: <span id="ticketcode"></span></div>
+                <div class="valid-if">VALID ONLY IF BARCODE & QR CODE ARE INTACT</div>
+                <div class="barcode-box"><svg id="barcode"></svg></div>
+            </div>
+            <div class="perfor"></div>
+        </div>
 
-// ============ Load Booking Data ============
-const bookingData = JSON.parse(localStorage.getItem('currentBookingData'));
-if(!bookingData){
-  alert("❌ कोई टिकट डेटा नहीं मिला। कृपया पहले भुगतान करें।");
-  window.location.href = "payment.html";
-}
+        <div class="bottom">
+            <div class="cell"><small>MATCH START</small><span id="matchstart"></span></div>
+            <div class="cell"><small>ENTRY TIME</small><span id="entrytime"></span></div>
+            <div class="cell"><small>ZONE</small><span id="zone"></span></div>
+            <div class="cell"><small>TIER/BLOCK</small><span id="tier"></span></div>
+            <div class="cell"><small>ROW</small><span id="row"></span></div>
+            <div class="cell"><small>SEAT</small><span id="seat"></span></div>
+            <div class="cell"><small>GATE</small><span id="gate"></span></div>
+        </div>
 
-// ============ Fill Ticket Info ============
-document.getElementById('team1Logo').src = bookingData.matchDetails.img1 || "https://iili.io/K8L5Ots.jpg";
-document.getElementById('team2Logo').src = bookingData.matchDetails.img2 || "https://iili.io/K8L5Ots.jpg";
-document.getElementById('teamsName').textContent = bookingData.matchDetails.teams || "Match";
-document.getElementById('matchDate').textContent = bookingData.matchDetails.date + " | " + (bookingData.matchDetails.time || "—");
-document.getElementById('stadium').textContent = bookingData.matchDetails.stadium || "Venue not specified";
+        <div class="terms">
+            <h3>IMPORTANT: TERMS AND CONDITIONS</h3>
+            <ul>
+                <li>This ticket is non-transferable and non-refundable.</li>
+                <li>Entry will be permitted only upon presentation of this e-ticket and a valid photo ID.</li>
+                <li>Gates open 2.5 hours prior to the match start time.</li>
+                <li>The use of any audio, video or other recording equipment is strictly prohibited.</li>
+                <li>Outside food, drinks, and banned items (lighters, sharp objects, helmets, etc.) are not allowed inside the stadium.</li>
+                <li>The organizer reserves the right to refuse admission or remove any person from the stadium.</li>
+            </ul>
+        </div>
+        </div>
 
-document.getElementById('seatType').textContent = bookingData.seatType;
-document.getElementById('qty').textContent = bookingData.qty;
-document.getElementById('total').textContent = bookingData.total;
-document.getElementById('utr').textContent = bookingData.utr;
-document.getElementById('bookingId').textContent = bookingData.bookingId;
+    <button id="downloadbtn">DOWNLOAD OFFICIAL E-TICKET</button>
 
-// ============ QR Code Generate ============
-const qr = new QRious({
-  element: document.getElementById('qrCode'),
-  value: `Booking ID: ${bookingData.bookingId} | UTR: ${bookingData.utr}`,
-  size: 120,
-  background: '#fff',
-  foreground: '#000'
-});
+    <script>
+        // --- Ticket Data Initialization ---
+        const DEFAULT_IPL_LOGO = "https://upload.wikimedia.org/wikipedia/commons/3/3a/Indian_Premier_League_logo.svg";
+        const DEMO_KEY = 'currentBookingData'; 
 
-// ============ Barcode Generate ============
-JsBarcode("#barcode", bookingData.bookingId, {
-  format: "CODE128",
-  lineColor: "#000",
-  width: 2,
-  height: 60,
-  displayValue: false
-});
+        // Stable and Realistic Default Data (MI vs CSK)
+        const defaultTicketData = {
+            matchDetails: {
+                teams: "Mumbai Indians vs Chennai Super Kings",
+                stadium: "Wankhede Stadium, Mumbai",
+                date: "2025-04-20", 
+                time: "19:30",     
+                img1: "https://upload.wikimedia.org/wikipedia/en/thumb/b/b3/Mumbai_Indians_Logo.svg/1000px-Mumbai_Indians_Logo.svg.png", 
+                img2: "https://upload.wikimedia.org/wikipedia/en/thumb/d/df/Chennai_Super_Kings_Logo.svg/1000px-Chennai_Super_Kings_Logo.svg.png",
+            },
+            price: 5500,      
+            qty: 1,           
+            total: 6250,      
+            seatType: "Club Lounge VIP", 
+            bookingId: "TKTWKS020425987",      
+            utr: "TRANS678129045610",            
+            seatDetails: {
+                GATE: "VIP 02",
+                ZONE: "SACHIN TENDULKAR STAND", 
+                TIER_BLOCK: "C-UPPER",   
+                ROW: "A",
+                SEAT_NO: "007",
+                matchNo: "33"       
+            }
+        };
 
-// ============ Download Ticket ============
-document.getElementById('downloadBtn').addEventListener('click', () => {
-  html2canvas(document.querySelector("#ticketArea")).then(canvas => {
-    const link = document.createElement('a');
-    link.download = `IPL_Ticket_${bookingData.bookingId}.png`;
-    link.href = canvas.toDataURL();
-    link.click();
-  });
-});
-</script>
 
+        let ticketData = JSON.parse(sessionStorage.getItem(DEMO_KEY));
+        if (!ticketData || !ticketData.seatDetails) {
+            console.warn("Could not find ticket data in sessionStorage, loading default data.");
+            ticketData = defaultTicketData;
+        }
+
+        // Destructure required data
+        const match = ticketData.matchDetails;
+        const seats = ticketData.seatDetails;
+        
+        const teamsArray = match.teams.split(" vs ");
+        const team1Name = teamsArray[0] || "Team 1";
+        const team2Name = teamsArray[1] || "Team 2";
+
+        // Match Start and Entry Time
+        let matchStart = 'N/A';
+        let entryTime = 'N/A';
+        if(match.date && match.time){
+            const matchDateTime = dayjs(`${match.date}T${match.time}`);
+            if(matchDateTime.isValid()){
+                matchStart = matchDateTime.format('h:mm A');
+                entryTime = matchDateTime.subtract(2.5,'hours').format('h:mm A');
+            }
+        }
+
+        // Seat/Ticket Numbers
+        const matchNo = seats.matchNo;
+        const ZONE = seats.ZONE;
+        const TIER_BLOCK = seats.TIER_BLOCK;
+        const ROW = seats.ROW;
+        const SEAT_NO = seats.SEAT_NO;
+        const GATE = seats.GATE;
+        const ticketNo = `M${matchNo}-${ZONE.substring(0,1)}${TIER_BLOCK}-${ROW}${SEAT_NO}`;
+        
+        // QR Code Data with a simulated Unique Device ID (Kept for realism)
+        const uniqueDeviceId = 'DEV'+Math.random().toString(36).substring(2, 9).toUpperCase(); 
+        const qrDataContent = `TKT-${ticketNo}-${ticketData.qty}-${match.date}-${ticketData.bookingId.slice(-6)}-${uniqueDeviceId}`;
+        
+        const uniqueBarcodeData = ticketData.utr;
+
+        // Price Breakdown
+        const basePrice = ticketData.price;
+        const taxesAndFees = Math.round(ticketData.total - (basePrice * ticketData.qty));
+        const finalTotal = ticketData.total;
+
+        // Apply VIP Style 
+        const ticketElement = document.getElementById('ticket');
+        if(ticketData.seatType.toLowerCase().includes('club') || ticketData.seatType.toLowerCase().includes('vip') || ticketData.seatType.toLowerCase().includes('premium')){
+            ticketElement.classList.add('vip-style');
+        }
+
+        // --- DISPLAY DATA ---
+        // Header Metadata
+        document.getElementById('sr-left').textContent = ticketNo;
+        document.getElementById('sr-right').textContent = `Match ${matchNo}`;
+        document.getElementById('roll-right').textContent = ticketData.qty;
+        document.getElementById('code-left').textContent = `A${ticketNo.substring(ticketNo.length-6)}`;
+        document.getElementById('ticketcode').textContent = qrDataContent.slice(0,18)+'...';
+        document.getElementById('basepricetext').textContent = `₹${basePrice} x ${ticketData.qty} = ₹${basePrice * ticketData.qty} + ₹${taxesAndFees} (TAXES/FEE)`;
+        document.getElementById('bookingid').textContent = ticketData.bookingId || 'N/A';
+        document.getElementById('totalprice').textContent = finalTotal;
+
+        // Main Center Content
+        document.getElementById('leftlogo').src = match.img1;
+        document.getElementById('leftteam').textContent = team1Name;
+        document.getElementById('ipllogo').src = DEFAULT_IPL_LOGO;
+        document.getElementById('oppsmalllogo').src = match.img2;
+        
+        document.getElementById('matchno').textContent = `OFFICIAL E-TICKET | ${ticketData.seatType.toUpperCase()} | MATCH ${matchNo}`;
+        document.getElementById('teamstext').textContent = match.teams;
+        document.getElementById('datetext').textContent = `DATE: ${dayjs(match.date).format('dddd, DD MMMM YYYY')} | GATES OPEN: ${entryTime}`;
+        document.getElementById('stadtext').textContent = match.stadium;
+
+        // Bottom Band
+        document.getElementById('matchstart').textContent = matchStart;
+        document.getElementById('entrytime').textContent = entryTime;
+        document.getElementById('zone').textContent = ZONE;
+        document.getElementById('tier').textContent = TIER_BLOCK;
+        document.getElementById('row').textContent = ROW;
+        document.getElementById('seat').textContent = SEAT_NO;
+        document.getElementById('gate').textContent = GATE;
+        document.getElementById('gateghost').textContent = GATE;
+
+        // Barcode
+        JsBarcode("#barcode", uniqueBarcodeData, { 
+            format:"CODE128", 
+            displayValue:false, 
+            width:2, 
+            height:50, 
+            margin:0 
+        });
+
+        // QR Code
+        new QRious({ 
+            element: document.getElementById('qrcodeCanvas'), 
+            value: qrDataContent, 
+            size:100, 
+            level:'H' 
+        });
+
+        // Download Function
+        document.getElementById('downloadbtn').addEventListener('click',()=>{
+            confetti({ 
+                particleCount:150, 
+                spread:70, 
+                origin:{y:0.6} 
+            });
+            document.getElementById('downloadbtn').style.display='none';
+            html2canvas(document.getElementById('ticket'),{scale:3,useCORS:true}).then(canvas=>{
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `IPL_E-TICKET_${ticketNo}.png`;
+                link.click();
+                document.getElementById('downloadbtn').style.display='block';
+            });
+        });
+    </script>
 </body>
 </html>
-<div class="ticket-container" id="ticketArea">
-  <div class="header">
-    <img src="https://iili.io/K8L5Ots.jpg" alt="IPL Logo">
-  </div>
-
-  <div class="match-info">
-    <div class="teams">
-      <img id="team1Logo" src="" alt="Team 1">
-      <span>VS</span>
-      <img id="team2Logo" src="" alt="Team 2">
-    </div>
-    <h2 id="teamsName">Team 1 vs Team 2</h2>
-    <p id="matchDate"></p>
-    <p id="stadium"></p>
-  </div>
-
-  <div class="details">
-    <p><strong>Seat:</strong> <span id="seatType"></span></p>
-    <p><strong>Quantity:</strong> <span id="qty"></span></p>
-    <p><strong>Total Paid:</strong> ₹<span id="total"></span></p>
-    <p><strong>Transaction ID:</strong> <span id="utr"></span></p>
-    <p><strong>Booking ID:</strong> <span id="bookingId"></span></p>
-  </div>
-
-  <div class="qr-barcode">
-    <img id="qrCode" src="" alt="QR">
-    <img id="barcode" src="" alt="Barcode">
-  </div>
-
-  <button class="download-btn" id="downloadBtn">🎫 Download Ticket</button>
-
-  <div class="footer">
-    Powered by IPL Official • © 2025
-  </div>
-</div>
