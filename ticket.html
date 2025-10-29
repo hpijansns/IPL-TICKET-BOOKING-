@@ -1,60 +1,204 @@
-<div class="meta-left"><small>TICKET SERIAL NO.</small><b id="sr-left">000001</b></div>
-    <div class="main">
-        <div class="left">
-            <div class="biglogo"><img id="leftlogo" src="" alt="Team Logo"></div>
-            <div class="teamname" id="leftteam"></div>
-        </div>
-        <div class="center">
-            <div class="matchno" id="matchno"></div>
-            <div class="teams" id="teamstext"></div>
-            <div class="date" id="datetext"></div>
-            <div class="stadium" id="stadtext"></div>
-        </div>
-        <div class="right">
-            <div class="qr-box"><canvas id="qrcodeCanvas" width="100" height="100"></canvas></div>
-            <div class="mini-text">TICKET CODE: <span id="ticketcode"></span></div>
-            <div class="valid-if">VALID ONLY IF BARCODE & QR CODE ARE INTACT</div>
-            <div class="barcode-box"><svg id="barcode"></svg></div>
-        </div>
-    </div>
-    <div class="bottom">
-        <div class="cell"><small>MATCH START</small><span id="matchstart"></span></div>
-        <div class="cell"><small>ENTRY TIME</small><span id="entrytime"></span></div>
-        <div class="cell"><small>SEAT</small><span id="seat"></span></div>
-        <div class="cell"><small>GATE</small><span id="gate"></span></div>
-    </div>
-</div>
-
-<button id="downloadbtn">DOWNLOAD OFFICIAL E-TICKET</button>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your IPL Ticket</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body {
+  margin:0;
+  padding:0;
+  font-family:'Roboto',sans-serif;
+  background:#f0f0f0;
+  color:#000;
+}
+.ticket-container {
+  max-width:500px;
+  margin:40px auto;
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  overflow:hidden;
+  position:relative;
+}
+.header {
+  background:linear-gradient(90deg,#1976d2,#0b81d1);
+  text-align:center;
+  padding:20px;
+}
+.header img {
+  height:60px;
+}
+.match-info {
+  text-align:center;
+  padding:15px 10px;
+}
+.teams {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+  margin:15px 0;
+}
+.teams img {
+  width:70px;
+  height:70px;
+  object-fit:contain;
+}
+.teams span {
+  font-size:22px;
+  font-weight:700;
+  color:#d32f2f;
+}
+.details {
+  text-align:center;
+  line-height:1.6;
+  padding:10px;
+}
+.details strong {
+  color:#333;
+}
+.qr-barcode {
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  padding:20px;
+}
+.qr-barcode img {
+  width:120px;
+  height:120px;
+  object-fit:contain;
+}
+.download-btn {
+  display:block;
+  width:80%;
+  margin:15px auto 25px;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(90deg,#43a047,#2e7d32);
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.3s;
+}
+.download-btn:hover {
+  background:linear-gradient(90deg,#2e7d32,#1b5e20);
+}
+.footer {
+  text-align:center;
+  font-size:12px;
+  color:#777;
+  padding-bottom:15px;
+}
+</style>
+</head>
+<body>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
-  const data={
-    leftlogo:"https://upload.wikimedia.org/wikipedia/en/2/20/Chennai_Super_Kings_Logo.svg",
-    leftteam:"CHENNAI SUPER KINGS",
-    matchno:"MATCH 45",
-    teamstext:"CSK VS MI",
-    datetext:"29 OCT 2025, 7:30 PM",
-    stadtext:"WANKHEDE STADIUM, MUMBAI",
-    matchstart:"7:30 PM",
-    entrytime:"6:30 PM",
-    seat:"B12",
-    gate:"3",
-    ticketcode:"IPL2025CSKMI"
-  };
-  for(const key in data){const el=document.getElementById(key);if(el)el.textContent=data[key];}
-  document.getElementById("leftlogo").src=data.leftlogo;
-  new QRious({element:document.getElementById("qrcodeCanvas"),value:data.ticketcode,size:100});
-  JsBarcode("#barcode",data.ticketcode,{format:"CODE128",displayValue:true,fontSize:12,lineColor:"#111",width:2,height:40});
-  document.getElementById("downloadbtn").addEventListener("click",()=>{
-    html2canvas(document.querySelector("#ticket")).then(canvas=>{
-      const link=document.createElement("a");
-      link.href=canvas.toDataURL("image/png");
-      link.download="IPL_Ticket.png";
-      link.click();
-    });
+// ============ Firebase Setup ============
+const firebaseConfig = {
+  apiKey: "FAKE-API-KEY-REPLACE-LATER",
+  authDomain: "pl-project-f9be7.firebaseapp.com",
+  databaseURL: "https://pl-project-f9be7-default-rtdb.firebaseio.com",
+  projectId: "pl-project-f9be7",
+  storageBucket: "pl-project-f9be7.appspot.com",
+  messagingSenderId: "0000000000",
+  appId: "1:0000000000:web:xxxxxxxxxxxxxx"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ============ Load Booking Data ============
+const bookingData = JSON.parse(localStorage.getItem('currentBookingData'));
+if(!bookingData){
+  alert("❌ कोई टिकट डेटा नहीं मिला। कृपया पहले भुगतान करें।");
+  window.location.href = "payment.html";
+}
+
+// ============ Fill Ticket Info ============
+document.getElementById('team1Logo').src = bookingData.matchDetails.img1 || "https://iili.io/K8L5Ots.jpg";
+document.getElementById('team2Logo').src = bookingData.matchDetails.img2 || "https://iili.io/K8L5Ots.jpg";
+document.getElementById('teamsName').textContent = bookingData.matchDetails.teams || "Match";
+document.getElementById('matchDate').textContent = bookingData.matchDetails.date + " | " + (bookingData.matchDetails.time || "—");
+document.getElementById('stadium').textContent = bookingData.matchDetails.stadium || "Venue not specified";
+
+document.getElementById('seatType').textContent = bookingData.seatType;
+document.getElementById('qty').textContent = bookingData.qty;
+document.getElementById('total').textContent = bookingData.total;
+document.getElementById('utr').textContent = bookingData.utr;
+document.getElementById('bookingId').textContent = bookingData.bookingId;
+
+// ============ QR Code Generate ============
+const qr = new QRious({
+  element: document.getElementById('qrCode'),
+  value: `Booking ID: ${bookingData.bookingId} | UTR: ${bookingData.utr}`,
+  size: 120,
+  background: '#fff',
+  foreground: '#000'
+});
+
+// ============ Barcode Generate ============
+JsBarcode("#barcode", bookingData.bookingId, {
+  format: "CODE128",
+  lineColor: "#000",
+  width: 2,
+  height: 60,
+  displayValue: false
+});
+
+// ============ Download Ticket ============
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  html2canvas(document.querySelector("#ticketArea")).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `IPL_Ticket_${bookingData.bookingId}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
   });
 });
 </script>
+
 </body>
 </html>
+<div class="ticket-container" id="ticketArea">
+  <div class="header">
+    <img src="https://iili.io/K8L5Ots.jpg" alt="IPL Logo">
+  </div>
+
+  <div class="match-info">
+    <div class="teams">
+      <img id="team1Logo" src="" alt="Team 1">
+      <span>VS</span>
+      <img id="team2Logo" src="" alt="Team 2">
+    </div>
+    <h2 id="teamsName">Team 1 vs Team 2</h2>
+    <p id="matchDate"></p>
+    <p id="stadium"></p>
+  </div>
+
+  <div class="details">
+    <p><strong>Seat:</strong> <span id="seatType"></span></p>
+    <p><strong>Quantity:</strong> <span id="qty"></span></p>
+    <p><strong>Total Paid:</strong> ₹<span id="total"></span></p>
+    <p><strong>Transaction ID:</strong> <span id="utr"></span></p>
+    <p><strong>Booking ID:</strong> <span id="bookingId"></span></p>
+  </div>
+
+  <div class="qr-barcode">
+    <img id="qrCode" src="" alt="QR">
+    <img id="barcode" src="" alt="Barcode">
+  </div>
+
+  <button class="download-btn" id="downloadBtn">🎫 Download Ticket</button>
+
+  <div class="footer">
+    Powered by IPL Official • © 2025
+  </div>
+</div>
