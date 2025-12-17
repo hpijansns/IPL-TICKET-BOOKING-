@@ -49,7 +49,6 @@
 
 <main class="wrap">
   <div class="grid">
-    <!-- LEFT: Controls -->
     <div>
       <div class="card" id="auth-card">
         <h3 id="auth-title">Admin Login</h3>
@@ -98,7 +97,6 @@
       </div>
     </div>
 
-    <!-- RIGHT: Content (matches table + form + bookings) -->
     <div>
       <div class="card">
         <h3>Add / Edit Match</h3>
@@ -160,18 +158,17 @@
   </div>
 </main>
 
-<!-- Firebase SDKs (compat for ease) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 <script>
 // ---------------- CONFIGURE FIREBASE ----------------
-// I inserted the databaseURL you provided. Replace the other fields below with your project values for full functionality.
+// UPDATED with your specific databaseURL
 const firebaseConfig = {
   apiKey: "REPLACE_WITH_YOUR_API_KEY",
   authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
-  databaseURL: "https://pl-project-f9be7-default-rtdb.firebaseio.com/",
+  databaseURL: "https://ipl-ticket-booking-25b5d-default-rtdb.firebaseio.com/",
   projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
   storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
   messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
@@ -182,7 +179,6 @@ const db = firebase.database();
 const storage = firebase.storage ? firebase.storage() : null;
 
 // ----------------- SIMPLE LOCAL AUTH (fallback) -----------------
-// You gave these credentials — local client-side check so you can log in immediately.
 // WARNING: this is client-side and not secure for production. Replace with Firebase Auth later.
 const LOCAL_ADMIN = { username: '7627055204', password: 'Pooja2005' };
 function isLoggedIn(){ return localStorage.getItem('admin_logged')==='1'; }
@@ -202,7 +198,7 @@ window.addEventListener('load', ()=>{
   }
 });
 
-// login handler (will first try local login; if wishlist, it will try DB verify later)
+// login handler
 $('loginBtn').addEventListener('click', async ()=>{
   const u = $('email').value.trim(); const p = $('password').value;
   if(!u||!p) return alert('Enter username and password');
@@ -220,9 +216,8 @@ $('loginBtn').addEventListener('click', async ()=>{
     const snap = await db.ref('admins').orderByChild('username').equalTo(u).once('value');
     const val = snap.val();
     if(val){
-      // pick first match
       const key = Object.keys(val)[0]; const admin = val[key];
-      if(admin.password === p){ // plaintext password in DB — only if you used that approach
+      if(admin.password === p){
         setLogged(true);
         $('auth-card').classList.add('hidden');
         $('admin-email').textContent = u;
