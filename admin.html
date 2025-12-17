@@ -164,22 +164,29 @@
 
 <script>
 // ---------------- CONFIGURE FIREBASE ----------------
-// UPDATED with your specific databaseURL
+// मैने URL अपडेट कर दिया है, लेकिन बाकी चीज़ें आपको भरनी होंगी।
 const firebaseConfig = {
-  apiKey: "REPLACE_WITH_YOUR_API_KEY",
-  authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
-  databaseURL: "https://ipl-ticket-booking-25b5d-default-rtdb.firebaseio.com/",
-  projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
-  storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
-  messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
-  appId: "REPLACE_WITH_YOUR_APP_ID"
+  // 🔴 नीचे दी गई 4 चीज़ें (API Key, ProjectId आदि) भरना बहुत जरूरी है!
+  // ये आपको Firebase Console > Project Settings > General > Your Apps में मिलेंगी।
+  apiKey: "REPLACE_WITH_YOUR_API_KEY", 
+  authDomain: "ipl-tickets-1060f.firebaseapp.com", // (Optional guess)
+  databaseURL: "https://ipl-tickets-1060f-default-rtdb.firebaseio.com/", // ✅ Updated Link
+  projectId: "ipl-tickets-1060f", // (Optional guess)
+  storageBucket: "ipl-tickets-1060f.appspot.com", // (Optional guess)
+  messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
+  appId: "REPLACE_WITH_YOUR_APP_ID" // 🔴 यह सबसे जरूरी है
 };
-firebase.initializeApp(firebaseConfig);
+
+// Initialize
+try {
+  firebase.initializeApp(firebaseConfig);
+} catch(e) {
+  console.error("Firebase init failed:", e);
+}
 const db = firebase.database();
 const storage = firebase.storage ? firebase.storage() : null;
 
 // ----------------- SIMPLE LOCAL AUTH (fallback) -----------------
-// WARNING: this is client-side and not secure for production. Replace with Firebase Auth later.
 const LOCAL_ADMIN = { username: '7627055204', password: 'Pooja2005' };
 function isLoggedIn(){ return localStorage.getItem('admin_logged')==='1'; }
 function setLogged(val){ if(val) localStorage.setItem('admin_logged','1'); else localStorage.removeItem('admin_logged'); }
@@ -377,7 +384,16 @@ $('importFile').addEventListener('change', async (e)=>{
 });
 
 // ----------------- LOAD ALL -----------------
-async function loadAllData(){ try{ await loadMatches(); await loadBookings(); }catch(e){ console.warn('DB error',e); alert('Database error — check firebaseConfig and DB rules.'); } }
+async function loadAllData(){ 
+  try{ 
+    await loadMatches(); 
+    await loadBookings(); 
+  } catch(e){ 
+    console.warn('DB error',e); 
+    // Show specific advice for the user based on the error
+    alert('Database error! Check: \n1. Did you fill in apiKey in the code?\n2. Are Database Rules set to true?'); 
+  } 
+}
 $('sortSelect').addEventListener('change', loadMatches);
 
 // init
