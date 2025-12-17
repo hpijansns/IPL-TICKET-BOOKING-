@@ -1,404 +1,485 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>IPL Admin Panel — Manage Matches & Settings</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-<style>
-  :root{--accent:#f84464;--accent-2:#c4242b;--bg:#f5f6f8;--card:#fff;--muted:#777}
-  *{box-sizing:border-box;font-family:'Roboto',sans-serif}
-  body{margin:0;background:var(--bg);color:#111}
-  header{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
-  header h1{font-size:18px;margin:0;font-weight:900}
-  header .small{font-weight:500;opacity:0.95}
-  .wrap{max-width:1100px;margin:26px auto;padding:0 16px}
-  .grid{display:grid;grid-template-columns:320px 1fr;gap:20px}
-  .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,0.06)}
-  label{display:block;font-weight:700;margin:10px 0 6px}
-  input[type=text], input[type=date], input[type=time], textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e9}
-  button{background:var(--accent);border:none;color:#fff;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer}
-  button.secondary{background:#444}
-  .muted{color:var(--muted);font-size:13px}
-  .match-list{display:grid;gap:12px}
-  .match-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;border:1px solid #eee}
-  .match-item img{width:64px;height:64px;object-fit:cover;border-radius:8px}
-  .match-meta{flex:1}
-  .row{display:flex;gap:10px;align-items:center}
-  .topbar{display:flex;gap:10px;align-items:center}
-  .right{display:flex;gap:8px}
-  .hidden{display:none}
-  .danger{background:#e83b3b}
-  .uploader{border:1px dashed #ddd;padding:10px;border-radius:8px;text-align:center}
-  .small-muted{font-size:12px;color:#888}
-  pre{white-space:pre-wrap;word-break:break-all;background:#fafafa;padding:8px;border-radius:8px;border:1px solid #eee}
-  @media(max-width:900px){.grid{grid-template-columns:1fr}} 
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IPL Admin Panel — Manage Matches & Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--accent:#f84464;--accent-2:#c4242b;--bg:#f5f6f8;--card:#fff;--muted:#777}
+    *{box-sizing:border-box;font-family:'Roboto',sans-serif}
+    body{margin:0;background:var(--bg);color:#111}
+    header{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+    header h1{font-size:18px;margin:0;font-weight:900}
+    header .small{font-weight:500;opacity:0.95}
+    .wrap{max-width:1100px;margin:26px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:320px 1fr;gap:20px}
+    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,0.06)}
+    label{display:block;font-weight:700;margin:10px 0 6px}
+    input[type=text], input[type=date], input[type=time], textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e9}
+    button{background:var(--accent);border:none;color:#fff;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer}
+    button.secondary{background:#444}
+    .muted{color:var(--muted);font-size:13px}
+    .match-list{display:grid;gap:12px}
+    .match-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;border:1px solid #eee}
+    .match-item img{width:64px;height:64px;object-fit:cover;border-radius:8px}
+    .match-meta{flex:1}
+    .row{display:flex;gap:10px;align-items:center}
+    .topbar{display:flex;gap:10px;align-items:center}
+    .right{display:flex;gap:8px}
+    .hidden{display:none}
+    .danger{background:#e83b3b}
+    .uploader{border:1px dashed #ddd;padding:10px;border-radius:8px;text-align:center}
+    .small-muted{font-size:12px;color:#888}
+    pre{white-space:pre-wrap;word-break:break-all;background:#fafafa;padding:8px;border-radius:8px;border:1px solid #eee}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
-<header>
-  <div>
-    <h1>IPL Admin Panel</h1>
-    <div class="small">Manage matches • banners • logos • bookings</div>
-  </div>
-  <div id="admin-actions" class="topbar">
-    <div id="admin-email" class="small-muted"></div>
-    <button id="logoutBtn" class="secondary hidden">Logout</button>
-  </div>
-</header>
-
-<main class="wrap">
-  <div class="grid">
+  <header>
     <div>
-      <div class="card" id="auth-card">
-        <h3 id="auth-title">Admin Login</h3>
-        <div id="auth-form">
-          <label>Username</label>
-          <input id="email" type="text" placeholder="7627055204">
-          <label>Password</label>
-          <input id="password" type="password" placeholder="Pooja2005">
-          <div style="margin-top:12px;display:flex;gap:8px">
-            <button id="loginBtn">Login</button>
-            <button id="createAdminBtn" class="secondary hidden">Create Admin</button>
+      <h1>IPL Admin Panel</h1>
+      <div class="small">Manage matches • banners • logos • bookings</div>
+    </div>
+    <div id="admin-actions" class="topbar">
+      <div id="admin-email" class="small-muted"></div>
+      <button id="logoutBtn" class="secondary hidden">Logout</button>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="grid">
+      <div>
+        <div class="card" id="auth-card">
+          <h3 id="auth-title">Admin Login</h3>
+          <div id="auth-form">
+            <label>Username</label>
+            <input id="email" type="text" placeholder="7627055204">
+            <label>Password</label>
+            <input id="password" type="password" placeholder="Pooja2005">
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button id="loginBtn">Login</button>
+              <button id="createAdminBtn" class="secondary hidden">Create Admin</button>
+            </div>
+            <div class="muted" style="margin-top:10px">Hint: temporary local login available. Replace with Firebase Auth for full security.</div>
           </div>
-          <div class="muted" style="margin-top:10px">Hint: temporary local login available. Replace with Firebase Auth for full security.</div>
+          <div id="auth-help" class="muted" style="margin-top:10px"></div>
         </div>
-        <div id="auth-help" class="muted" style="margin-top:10px"></div>
+        
+        <div class="card" style="margin-top:16px">
+          <h3>Upload Banner & Logo</h3>
+          <div style="display:grid;gap:8px">
+            <label>Banner Image</label>
+            <div class="uploader" id="bannerUploader">Drop or select file
+              <input id="bannerFile" type="file" accept="image/*" style="display:none">
+            </div>
+            <label>Logo Image</label>
+            <div class="uploader" id="logoUploader">Drop or select file
+              <input id="logoFile" type="file" accept="image/*" style="display:none">
+            </div>
+            <div class="row" style="margin-top:8px">
+              <button id="uploadAssetsBtn">Upload & Save</button>
+              <button id="previewAssetsBtn" class="secondary">Preview</button>
+            </div>
+            <div id="assetsStatus" class="small-muted" style="margin-top:8px"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h3>Quick Actions</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="clearMatchesBtn" class="danger">Delete ALL Matches</button>
+            <button id="exportMatchesBtn" class="secondary">Export Matches JSON</button>
+            <button id="importMatchesBtn" class="secondary">Import Matches JSON</button>
+            <input id="importFile" type="file" accept="application/json" style="display:none">
+          </div>
+          <div class="small-muted" style="margin-top:8px">Use with caution: deleting is permanent unless you have a backup.</div>
+        </div>
       </div>
 
-      <div class="card" style="margin-top:16px">
-        <h3>Upload Banner & Logo</h3>
-        <div style="display:grid;gap:8px">
-          <label>Banner Image</label>
-          <div class="uploader" id="bannerUploader">Drop or select file
-            <input id="bannerFile" type="file" accept="image/*" style="display:none">
+      <div>
+        <div class="card">
+          <h3>Add / Edit Match</h3>
+          <div style="display:grid;gap:8px">
+            <label>Teams (display string)</label>
+            <input id="teamsInput" type="text" placeholder="Mumbai Indians vs Chennai Super Kings">
+            <label>Team 1 Image (URL or upload)</label>
+            <input id="img1Url" type="text" placeholder="https://...">
+            <input id="img1File" type="file" accept="image/*">
+            <label>Team 2 Image (URL or upload)</label>
+            <input id="img2Url" type="text" placeholder="https://...">
+            <input id="img2File" type="file" accept="image/*">
+            <div style="display:flex;gap:8px">
+              <div style="flex:1">
+                <label>Date</label>
+                <input id="dateInput" type="date">
+              </div>
+              <div style="flex:1">
+                <label>Time (IST)</label>
+                <input id="timeInput" type="time">
+              </div>
+            </div>
+            <label>Stadium</label>
+            <input id="stadiumInput" type="text" placeholder="Eden Gardens">
+            <label>Optional: Additional metadata (JSON)</label>
+            <textarea id="metaInput" rows="3" placeholder='{"group":"A","tickets":20000}'></textarea>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button id="saveMatchBtn">Save Match</button>
+              <button id="resetMatchBtn" class="secondary">Reset</button>
+            </div>
+            <div id="matchFormMsg" class="small-muted"></div>
           </div>
-          <label>Logo Image</label>
-          <div class="uploader" id="logoUploader">Drop or select file
-            <input id="logoFile" type="file" accept="image/*" style="display:none">
-          </div>
-          <div class="row" style="margin-top:8px">
-            <button id="uploadAssetsBtn">Upload & Save</button>
-            <button id="previewAssetsBtn" class="secondary">Preview</button>
-          </div>
-          <div id="assetsStatus" class="small-muted" style="margin-top:8px"></div>
         </div>
-      </div>
 
-      <div class="card" style="margin-top:16px">
-        <h3>Quick Actions</h3>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button id="clearMatchesBtn" class="danger">Delete ALL Matches</button>
-          <button id="exportMatchesBtn" class="secondary">Export Matches JSON</button>
-          <button id="importMatchesBtn" class="secondary">Import Matches JSON</button>
-          <input id="importFile" type="file" accept="application/json" style="display:none">
+        <div class="card" style="margin-top:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3>Matches</h3>
+            <div class="row">
+              <select id="sortSelect"><option value="dateAsc">Date ↑</option><option value="dateDesc">Date ↓</option></select>
+              <button id="refreshMatchesBtn" class="secondary">Refresh</button>
+            </div>
+          </div>
+          <div id="matchesList" class="match-list" style="margin-top:12px"></div>
         </div>
-        <div class="small-muted" style="margin-top:8px">Use with caution: deleting is permanent unless you have a backup.</div>
+
+        <div class="card" style="margin-top:16px">
+          <h3>Bookings</h3>
+          <div id="bookingsList" style="display:grid;gap:8px;margin-top:8px"></div>
+        </div>
       </div>
     </div>
+  </main>
 
-    <div>
-      <div class="card">
-        <h3>Add / Edit Match</h3>
-        <div style="display:grid;gap:8px">
-          <label>Teams (display string)</label>
-          <input id="teamsInput" type="text" placeholder="Mumbai Indians vs Chennai Super Kings">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 
-          <label>Team 1 Image (URL or upload)</label>
-          <input id="img1Url" type="text" placeholder="https://...">
-          <input id="img1File" type="file" accept="image/*">
+  <script>
+    // ---------------- CONFIGURE FIREBASE ---------------- //
+    // Updated with your actual credentials
+    const firebaseConfig = {
+      apiKey: "AIzaSyA98b78eCXflbhLR8fCb4pqyCaZRXqxfjU",
+      authDomain: "ipl-tickets-1060f.firebaseapp.com",
+      databaseURL: "https://ipl-tickets-1060f-default-rtdb.firebaseio.com",
+      projectId: "ipl-tickets-1060f",
+      storageBucket: "ipl-tickets-1060f.firebasestorage.app",
+      messagingSenderId: "50763894108",
+      appId: "1:50763894108:web:6ff181b737afe2330a4599",
+      measurementId: "G-QVHWBBN8NH"
+    };
 
-          <label>Team 2 Image (URL or upload)</label>
-          <input id="img2Url" type="text" placeholder="https://...">
-          <input id="img2File" type="file" accept="image/*">
+    // Initialize Firebase
+    let db, storage, analytics;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+      storage = firebase.storage();
+      analytics = firebase.analytics();
+      console.log("Firebase initialized successfully");
+    } catch(e) {
+      console.error("Firebase initialization failed:", e);
+      alert("Firebase initialization failed! Check console.");
+    }
 
-          <div style="display:flex;gap:8px">
-            <div style="flex:1">
-              <label>Date</label>
-              <input id="dateInput" type="date">
-            </div>
-            <div style="flex:1">
-              <label>Time (IST)</label>
-              <input id="timeInput" type="time">
-            </div>
-          </div>
+    // ----------------- SIMPLE LOCAL AUTH -----------------
+    const LOCAL_ADMIN = { username: '7627055204', password: 'Pooja2005' };
 
-          <label>Stadium</label>
-          <input id="stadiumInput" type="text" placeholder="Eden Gardens">
+    function isLoggedIn(){
+      return localStorage.getItem('admin_logged')==='1';
+    }
+    function setLogged(val){
+      if(val) localStorage.setItem('admin_logged','1');
+      else localStorage.removeItem('admin_logged');
+    }
 
-          <label>Optional: Additional metadata (JSON)</label>
-          <textarea id="metaInput" rows="3" placeholder='{"group":"A","tickets":20000}'></textarea>
+    // UI refs
+    const $ = id => document.getElementById(id);
+    let editingKey = null;
 
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button id="saveMatchBtn">Save Match</button>
-            <button id="resetMatchBtn" class="secondary">Reset</button>
-          </div>
+    // Check login on load
+    window.addEventListener('load', ()=>{
+      if(isLoggedIn()){
+        $('auth-card').classList.add('hidden');
+        $('admin-email').textContent = LOCAL_ADMIN.username;
+        $('logoutBtn').classList.remove('hidden');
+        if(db) loadAllData();
+      }
+    });
 
-          <div id="matchFormMsg" class="small-muted"></div>
-        </div>
-      </div>
+    // Login Handler
+    $('loginBtn').addEventListener('click', async ()=>{
+      const u = $('email').value.trim();
+      const p = $('password').value;
+      if(!u||!p) return alert('Enter username and password');
 
-      <div class="card" style="margin-top:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h3>Matches</h3>
-          <div class="row">
-            <select id="sortSelect"><option value="dateAsc">Date ↑</option><option value="dateDesc">Date ↓</option></select>
-            <button id="refreshMatchesBtn" class="secondary">Refresh</button>
-          </div>
-        </div>
-        <div id="matchesList" class="match-list" style="margin-top:12px"></div>
-      </div>
-
-      <div class="card" style="margin-top:16px">
-        <h3>Bookings</h3>
-        <div id="bookingsList" style="display:grid;gap:8px;margin-top:8px"></div>
-      </div>
-
-    </div>
-  </div>
-</main>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-
-<script>
-// ---------------- CONFIGURE FIREBASE ----------------
-// मैने URL अपडेट कर दिया है, लेकिन बाकी चीज़ें आपको भरनी होंगी।
-const firebaseConfig = {
-  // 🔴 नीचे दी गई 4 चीज़ें (API Key, ProjectId आदि) भरना बहुत जरूरी है!
-  // ये आपको Firebase Console > Project Settings > General > Your Apps में मिलेंगी।
-  apiKey: "REPLACE_WITH_YOUR_API_KEY", 
-  authDomain: "ipl-tickets-1060f.firebaseapp.com", // (Optional guess)
-  databaseURL: "https://ipl-tickets-1060f-default-rtdb.firebaseio.com/", // ✅ Updated Link
-  projectId: "ipl-tickets-1060f", // (Optional guess)
-  storageBucket: "ipl-tickets-1060f.appspot.com", // (Optional guess)
-  messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
-  appId: "REPLACE_WITH_YOUR_APP_ID" // 🔴 यह सबसे जरूरी है
-};
-
-// Initialize
-try {
-  firebase.initializeApp(firebaseConfig);
-} catch(e) {
-  console.error("Firebase init failed:", e);
-}
-const db = firebase.database();
-const storage = firebase.storage ? firebase.storage() : null;
-
-// ----------------- SIMPLE LOCAL AUTH (fallback) -----------------
-const LOCAL_ADMIN = { username: '7627055204', password: 'Pooja2005' };
-function isLoggedIn(){ return localStorage.getItem('admin_logged')==='1'; }
-function setLogged(val){ if(val) localStorage.setItem('admin_logged','1'); else localStorage.removeItem('admin_logged'); }
-
-// UI refs
-const $ = id => document.getElementById(id);
-let editingKey = null;
-
-// show/hide auth UI on load
-window.addEventListener('load', ()=>{
-  if(isLoggedIn()){
-    $('auth-card').classList.add('hidden');
-    $('admin-email').textContent = LOCAL_ADMIN.username;
-    $('logoutBtn').classList.remove('hidden');
-    loadAllData();
-  }
-});
-
-// login handler
-$('loginBtn').addEventListener('click', async ()=>{
-  const u = $('email').value.trim(); const p = $('password').value;
-  if(!u||!p) return alert('Enter username and password');
-  // local check
-  if(u === LOCAL_ADMIN.username && p === LOCAL_ADMIN.password){
-    setLogged(true);
-    $('auth-card').classList.add('hidden');
-    $('admin-email').textContent = u;
-    $('logoutBtn').classList.remove('hidden');
-    loadAllData();
-    return;
-  }
-  // else try simple DB-based check (if you later add admins in DB)
-  try{
-    const snap = await db.ref('admins').orderByChild('username').equalTo(u).once('value');
-    const val = snap.val();
-    if(val){
-      const key = Object.keys(val)[0]; const admin = val[key];
-      if(admin.password === p){
+      // 1. Local hardcoded check
+      if(u === LOCAL_ADMIN.username && p === LOCAL_ADMIN.password){
         setLogged(true);
         $('auth-card').classList.add('hidden');
         $('admin-email').textContent = u;
         $('logoutBtn').classList.remove('hidden');
-        loadAllData();
+        if(db) loadAllData();
         return;
       }
+
+      // 2. Database check (optional, if you add admins to DB)
+      if (db) {
+        try{
+          const snap = await db.ref('admins').orderByChild('username').equalTo(u).once('value');
+          const val = snap.val();
+          if(val){
+            const key = Object.keys(val)[0];
+            const admin = val[key];
+            if(admin.password === p){
+              setLogged(true);
+              $('auth-card').classList.add('hidden');
+              $('admin-email').textContent = u;
+              $('logoutBtn').classList.remove('hidden');
+              loadAllData();
+              return;
+            }
+          }
+        }catch(e){
+          console.warn("DB login check failed:", e);
+        }
+      }
+      alert('Login failed');
+    });
+
+    $('logoutBtn').addEventListener('click', ()=>{
+      setLogged(false);
+      $('auth-card').classList.remove('hidden');
+      $('admin-email').textContent = '';
+      $('logoutBtn').classList.add('hidden');
+      $('matchesList').innerHTML = '';
+      $('bookingsList').innerHTML = '';
+    });
+
+    // ----------------- HELPERS -----------------
+    function showStatus(el, msg, time=3000){
+      el.textContent = msg;
+      if(time>0) setTimeout(()=>{
+        if(el.textContent===msg) el.textContent='';
+      }, time);
     }
-  }catch(e){ console.warn(e); }
-  alert('Login failed');
-});
-
-$('logoutBtn').addEventListener('click', ()=>{
-  setLogged(false);
-  $('auth-card').classList.remove('hidden');
-  $('admin-email').textContent = '';
-  $('logoutBtn').classList.add('hidden');
-});
-
-// ----------------- HELPERS -----------------
-function showStatus(el, msg, time=3000){
-  el.textContent = msg; if(time>0) setTimeout(()=>{ if(el.textContent===msg) el.textContent=''; }, time);
-}
-function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
-Object.defineProperty(JSON,'parseSafe',{value:function(s){try{return JSON.parse(s)}catch(e){return null}}});
-JSON.parseSafe = function(s){ try{return JSON.parse(s)}catch(e){return null} }
-
-// ----------------- UPLOAD ASSETS -----------------
-let bannerFile=null, logoFile=null;
-$('bannerUploader').addEventListener('click', ()=>$('bannerFile').click());
-$('logoUploader').addEventListener('click', ()=>$('logoFile').click());
-$('bannerFile').addEventListener('change', e=> bannerFile = e.target.files[0]);
-$('logoFile').addEventListener('change', e=> logoFile = e.target.files[0]);
-
-$('uploadAssetsBtn').addEventListener('click', async ()=>{
-  if(!storage) return alert('Storage not initialized. Fill firebaseConfig storageBucket and appId.');
-  if(!bannerFile && !logoFile) return showStatus($('assetsStatus'),'Select a file first');
-  $('assetsStatus').textContent = 'Uploading...';
-  try{
-    if(bannerFile){
-      const bRef = storage.ref('assets/banner-'+Date.now()+'.jpg');
-      await bRef.put(bannerFile);
-      const url = await bRef.getDownloadURL();
-      await db.ref('settings/banner').set(url);
+    function escapeHtml(s){
+      if(!s) return '';
+      return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
     }
-    if(logoFile){
-      const lRef = storage.ref('assets/logo-'+Date.now()+'.png');
-      await lRef.put(logoFile);
-      const url2 = await lRef.getDownloadURL();
-      await db.ref('settings/logo').set(url2);
+    Object.defineProperty(JSON,'parseSafe',{value:function(s){try{return JSON.parse(s)}catch(e){return null}}});
+
+    // ----------------- UPLOAD ASSETS -----------------
+    let bannerFile=null, logoFile=null;
+    $('bannerUploader').addEventListener('click', ()=>$('bannerFile').click());
+    $('logoUploader').addEventListener('click', ()=>$('logoFile').click());
+    $('bannerFile').addEventListener('change', e=> bannerFile = e.target.files[0]);
+    $('logoFile').addEventListener('change', e=> logoFile = e.target.files[0]);
+
+    $('uploadAssetsBtn').addEventListener('click', async ()=>{
+      if(!storage) return alert('Storage not initialized.');
+      if(!bannerFile && !logoFile) return showStatus($('assetsStatus'),'Select a file first');
+      if(!isLoggedIn()) return alert('Please login as admin');
+
+      $('assetsStatus').textContent = 'Uploading...';
+      try{
+        if(bannerFile){
+          const bRef = storage.ref('assets/banner-'+Date.now()+'.jpg');
+          await bRef.put(bannerFile);
+          const url = await bRef.getDownloadURL();
+          await db.ref('settings/banner').set(url);
+        }
+        if(logoFile){
+          const lRef = storage.ref('assets/logo-'+Date.now()+'.png');
+          await lRef.put(logoFile);
+          const url2 = await lRef.getDownloadURL();
+          await db.ref('settings/logo').set(url2);
+        }
+        showStatus($('assetsStatus'),'Uploaded & saved to settings',4000);
+        bannerFile = logoFile = null;
+        $('bannerFile').value='';
+        $('logoFile').value='';
+      }catch(err){
+        showStatus($('assetsStatus'),'Upload failed: '+err.message,5000);
+      }
+    });
+
+    $('previewAssetsBtn').addEventListener('click', async ()=>{
+      if(!db) return alert('Database not initialized');
+      if(!isLoggedIn()) return alert('Please login as admin');
+      try {
+        const b = (await db.ref('settings/banner').once('value')).val();
+        const l = (await db.ref('settings/logo').once('value')).val();
+        alert('Banner URL:\n'+(b||'not set')+'\n\nLogo URL:\n'+(l||'not set'));
+      } catch(e) {
+        alert('Error fetching settings: ' + e.message);
+      }
+    });
+
+    // ----------------- MATCH CRUD -----------------
+    async function uploadFileIfPresent(file){
+      if(!file) return null;
+      if(!storage) return alert('Storage not initialized.');
+      const ref = storage.ref('assets/match-'+Date.now()+'-'+file.name.replace(/\s+/g,'_'));
+      await ref.put(file);
+      return await ref.getDownloadURL();
     }
-    showStatus($('assetsStatus'),'Uploaded & saved to settings',4000);
-    bannerFile = logoFile = null; $('bannerFile').value=''; $('logoFile').value='';
-    loadAllData();
-  }catch(err){ showStatus($('assetsStatus'),'Upload failed: '+err.message,5000); }
-});
 
-$('previewAssetsBtn').addEventListener('click', async ()=>{
-  const b = (await db.ref('settings/banner').once('value')).val();
-  const l = (await db.ref('settings/logo').once('value')).val();
-  alert('Banner URL:\n'+(b||'not set')+'\n\nLogo URL:\n'+(l||'not set'));
-});
+    $('saveMatchBtn').addEventListener('click', async ()=>{
+      if(!isLoggedIn()) return alert('Please login as admin');
+      if(!db) return alert('Database not initialized');
+      
+      const teams = $('teamsInput').value.trim();
+      const date = $('dateInput').value;
+      const time = $('timeInput').value;
+      const stadium = $('stadiumInput').value.trim();
+      const metaText = $('metaInput').value.trim();
 
-// ----------------- MATCH CRUD -----------------
-async function uploadFileIfPresent(file){
-  if(!file) return null;
-  if(!storage) return alert('Storage not initialized. Fill firebaseConfig storageBucket and appId.');
-  const ref = storage.ref('assets/match-'+Date.now()+'-'+file.name.replace(/\s+/g,'_'));
-  await ref.put(file);
-  return await ref.getDownloadURL();
-}
+      if(!teams||!date) return showStatus($('matchFormMsg'),'Teams and Date required');
 
-$('saveMatchBtn').addEventListener('click', async ()=>{
-  if(!isLoggedIn()) return alert('Please login as admin');
-  const teams = $('teamsInput').value.trim();
-  const date = $('dateInput').value;
-  const time = $('timeInput').value;
-  const stadium = $('stadiumInput').value.trim();
-  const metaText = $('metaInput').value.trim();
-  if(!teams||!date) return showStatus($('matchFormMsg'),'Teams and Date required');
+      $('saveMatchBtn').disabled = true;
+      showStatus($('matchFormMsg'),'Saving...');
 
-  $('saveMatchBtn').disabled = true; showStatus($('matchFormMsg'),'Saving...');
-  try{
-    const img1File = $('img1File').files[0];
-    const img2File = $('img2File').files[0];
-    const img1 = img1File ? await uploadFileIfPresent(img1File) : ($('img1Url').value.trim() || null);
-    const img2 = img2File ? await uploadFileIfPresent(img2File) : ($('img2Url').value.trim() || null);
-    const payload = {teams, date, time: time||null, stadium:stadium||null, img1:img1||null, img2:img2||null, meta:metaText?JSON.parseSafe(metaText):null, updatedAt:Date.now()};
-    if(editingKey){
-      await db.ref('matches/'+editingKey).update(payload);
-      showStatus($('matchFormMsg'),'Match updated',3000);
-    } else {
-      const newRef = db.ref('matches').push();
-      await newRef.set(payload);
-      showStatus($('matchFormMsg'),'Match added',3000);
+      try{
+        const img1File = $('img1File').files[0];
+        const img2File = $('img2File').files[0];
+        const img1 = img1File ? await uploadFileIfPresent(img1File) : ($('img1Url').value.trim() || null);
+        const img2 = img2File ? await uploadFileIfPresent(img2File) : ($('img2Url').value.trim() || null);
+
+        const payload = {
+          teams,
+          date,
+          time: time||null,
+          stadium:stadium||null,
+          img1:img1||null,
+          img2:img2||null,
+          meta:metaText?JSON.parseSafe(metaText):null,
+          updatedAt:Date.now()
+        };
+
+        if(editingKey){
+          await db.ref('matches/'+editingKey).update(payload);
+          showStatus($('matchFormMsg'),'Match updated',3000);
+        } else {
+          await db.ref('matches').push(payload);
+          showStatus($('matchFormMsg'),'Match added',3000);
+        }
+        resetMatchForm();
+        loadMatches();
+      }catch(err){
+        showStatus($('matchFormMsg'),'Save failed: '+err.message,5000);
+      }
+      $('saveMatchBtn').disabled = false;
+    });
+
+    $('resetMatchBtn').addEventListener('click', resetMatchForm);
+
+    function resetMatchForm(){
+      editingKey = null;
+      $('teamsInput').value='';
+      $('img1Url').value='';
+      $('img2Url').value='';
+      $('dateInput').value='';
+      $('timeInput').value='';
+      $('stadiumInput').value='';
+      $('metaInput').value='';
+      $('img1File').value='';
+      $('img2File').value='';
+      $('matchFormMsg').textContent='';
     }
-    resetMatchForm(); loadMatches();
-  }catch(err){ showStatus($('matchFormMsg'),'Save failed: '+err.message,5000); }
-  $('saveMatchBtn').disabled = false;
-});
 
-$('resetMatchBtn').addEventListener('click', resetMatchForm);
-function resetMatchForm(){ editingKey = null; $('teamsInput').value=''; $('img1Url').value=''; $('img2Url').value=''; $('dateInput').value=''; $('timeInput').value=''; $('stadiumInput').value=''; $('metaInput').value=''; $('img1File').value=''; $('img2File').value=''; $('matchFormMsg').textContent=''; }
+    async function loadMatches(){
+      if(!db) return;
+      const list = $('matchesList');
+      list.innerHTML='<div class="small-muted">Loading...</div>';
+      try {
+        const snap = await db.ref('matches').once('value');
+        const val = snap.val();
+        list.innerHTML='';
+        if(!val){
+          list.innerHTML='<div class="small-muted">No matches</div>';
+          return;
+        }
+        const arr = Object.entries(val).map(([k,v])=>({id:k,...v}));
+        const sort = $('sortSelect').value;
+        arr.sort((a,b)=>{
+          const da=new Date(a.date+' '+(a.time||'00:00')), dbt=new Date(b.date+' '+(b.time||'00:00'));
+          return sort==='dateAsc'?da-dbt:dbt-da;
+        });
 
-async function loadMatches(){
-  const snap = await db.ref('matches').once('value');
-  const val = snap.val(); const list = $('matchesList'); list.innerHTML='';
-  if(!val){ list.innerHTML='<div class="small-muted">No matches</div>'; return; }
-  const arr = Object.entries(val).map(([k,v])=>({id:k,...v}));
-  const sort = $('sortSelect').value;
-  arr.sort((a,b)=>{ const da=new Date(a.date+' '+(a.time||'00:00')), dbt=new Date(b.date+' '+(b.time||'00:00')); return sort==='dateAsc'?da-dbt:dbt-da; });
-  arr.forEach(m=>{
-    const item = document.createElement('div'); item.className='match-item';
-    const img = document.createElement('img'); img.src = m.img1 || m.img2 || 'https://iili.io/K8L5Ots.jpg';
-    const meta = document.createElement('div'); meta.className='match-meta';
-    meta.innerHTML = `<strong>${escapeHtml(m.teams||'Untitled')}</strong><div class='small-muted'>${m.date} ${m.time||''} • ${m.stadium||''}</div>`;
-    const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';
-    const editBtn = document.createElement('button'); editBtn.textContent='Edit'; editBtn.addEventListener('click', ()=>fillFormForEdit(m));
-    const delBtn = document.createElement('button'); delBtn.textContent='Delete'; delBtn.className='danger'; delBtn.addEventListener('click', ()=>deleteMatchWithConfirm(m.id));
-    actions.appendChild(editBtn); actions.appendChild(delBtn);
-    item.appendChild(img); item.appendChild(meta); item.appendChild(actions);
-    list.appendChild(item);
-  });
-}
+        arr.forEach(m=>{
+          const item = document.createElement('div');
+          item.className='match-item';
+          const img = document.createElement('img');
+          img.src = m.img1 || m.img2 || 'https://via.placeholder.com/64?text=IPL'; 
+          
+          const meta = document.createElement('div');
+          meta.className='match-meta';
+          meta.innerHTML = `<strong>${escapeHtml(m.teams||'Untitled')}</strong><div class='small-muted'>${m.date} ${m.time||''} • ${m.stadium||''}</div>`;
+          
+          const actions = document.createElement('div');
+          actions.style.display='flex';
+          actions.style.gap='8px';
+          
+          const editBtn = document.createElement('button');
+          editBtn.textContent='Edit';
+          editBtn.addEventListener('click', ()=>fillFormForEdit(m));
+          
+          const delBtn = document.createElement('button');
+          delBtn.textContent='Delete';
+          delBtn.className='danger';
+          delBtn.addEventListener('click', ()=>deleteMatchWithConfirm(m.id));
+          
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+          
+          item.appendChild(img);
+          item.appendChild(meta);
+          item.appendChild(actions);
+          list.appendChild(item);
+        });
+      } catch (e) {
+        list.innerHTML='<div class="small-muted" style="color:red">Error loading matches. Check console.</div>';
+        console.error(e);
+      }
+    }
 
-function fillFormForEdit(m){ editingKey = m.id; $('teamsInput').value = m.teams||''; $('img1Url').value = m.img1||''; $('img2Url').value = m.img2||''; $('dateInput').value = m.date||''; $('timeInput').value = m.time||''; $('stadiumInput').value = m.stadium||''; $('metaInput').value = m.meta?JSON.stringify(m.meta):''; window.scrollTo({top:0,behavior:'smooth'}); }
+    function fillFormForEdit(m){
+      editingKey = m.id;
+      $('teamsInput').value = m.teams||'';
+      $('img1Url').value = m.img1||'';
+      $('img2Url').value = m.img2||'';
+      $('dateInput').value = m.date||'';
+      $('timeInput').value = m.time||'';
+      $('stadiumInput').value = m.stadium||'';
+      $('metaInput').value = m.meta?JSON.stringify(m.meta):'';
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
 
-async function deleteMatchWithConfirm(id){ if(!confirm('Delete this match?')) return; await db.ref('matches/'+id).remove(); loadMatches(); }
+    async function deleteMatchWithConfirm(id){
+      if(!isLoggedIn()) return alert('Please login as admin');
+      if(!db) return;
+      if(!confirm('Delete this match?')) return;
+      await db.ref('matches/'+id).remove();
+      loadMatches();
+    }
 
-// ----------------- BOOKINGS -----------------
-async function loadBookings(){
-  const snap = await db.ref('bookings').once('value'); const val = snap.val(); const out = $('bookingsList'); out.innerHTML='';
-  if(!val){ out.innerHTML='<div class="small-muted">No bookings yet</div>'; return; }
-  const arr = Object.entries(val).map(([k,v])=>({id:k,...v}));
-  arr.slice().reverse().forEach(b=>{
-    const el = document.createElement('div'); el.className='match-item';
-    const meta = document.createElement('div'); meta.className='match-meta';
-    meta.innerHTML = `<strong>${escapeHtml(b.name||'Guest')}</strong><div class='small-muted'>Match: ${escapeHtml(b.match||'—')} • Seats: ${escapeHtml(String(b.seats||'1'))}</div><div style='margin-top:6px'><pre>${escapeHtml(JSON.stringify(b,null,2))}</pre></div>`;
-    el.appendChild(meta); out.appendChild(el);
-  });
-}
-
-// ----------------- QUICK ACTIONS -----------------
-$('refreshMatchesBtn').addEventListener('click', loadMatches);
-$('clearMatchesBtn').addEventListener('click', async ()=>{
-  if(!confirm('Delete ALL matches? This cannot be undone.')) return;
-  await db.ref('matches').remove(); loadMatches();
-});
-
-$('exportMatchesBtn').addEventListener('click', async ()=>{
-  const snap = await db.ref('matches').once('value'); const val = snap.val()||{}; const blob = new Blob([JSON.stringify(val,null,2)],{type:'application/json'});
-  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='matches.json'; a.click(); URL.revokeObjectURL(url);
-});
-$('importMatchesBtn').addEventListener('click', ()=>$('importFile').click());
-$('importFile').addEventListener('change', async (e)=>{
-  const f = e.target.files[0]; if(!f) return; const text = await f.text(); try{ const obj = JSON.parse(text); await db.ref('matches').set(obj); showStatus($('matchFormMsg'),'Imported matches'); loadMatches(); }catch(err){ showStatus($('matchFormMsg'),'Import failed: '+err.message,5000); }
-});
-
-// ----------------- LOAD ALL -----------------
-async function loadAllData(){ 
-  try{ 
-    await loadMatches(); 
-    await loadBookings(); 
-  } catch(e){ 
-    console.warn('DB error',e); 
-    // Show specific advice for the user based on the error
-    alert('Database error! Check: \n1. Did you fill in apiKey in the code?\n2. Are Database Rules set to true?'); 
-  } 
-}
-$('sortSelect').addEventListener('change', loadMatches);
-
-// init
-resetMatchForm();
-</script>
-
-</body>
-</html>
+    // ----------------- BOOKINGS -----------------
+    async function loadBookings(){
+      if(!db) return;
+      const out = $('bookingsList');
+      out.innerHTML='<div class="small-muted">Loading...</div>';
+      try {
+        const snap = await db.ref('bookings').once('value');
+        const val = snap.val();
+        out.innerHTML='';
+        if(!val){
+          out.innerHTML='<div class="small-muted">No bookings yet</div>';
+          return;
+        }
+        const arr = Object.entries(val).map(([k,v])=>({id:k,...v}));
+        arr.slice().reverse().forEach(b=>{
+          const el = document.createElement('div');
+          el.className='match-item';
+          const meta = document.createElement('div');
+          meta.className='match-meta';
+          meta.innerHTML = `<strong>${escapeHtml(b.name||'Guest')}</strong><div class='small-muted'>Match: ${escapeHtml(b.match||'—')} • Seats: ${escapeHtml(String(b.seats||'1'))}</div><div style='margin-
